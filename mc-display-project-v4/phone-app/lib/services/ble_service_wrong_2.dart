@@ -1,0 +1,385 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+
+class BleService extends ChangeNotifier {
+  static final BleService _instance = BleService._internal();
+  factory BleService() => _instance;
+  BleService._internal();
+
+  // BLE UUIDs matching the ESP32
+  static const String serviceUuid = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+  static const String rxCharUuid = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"; // Write to ESP32
+  static const String txCharUuid = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"; // Read from ESP32
+
+  static const String targetDeviceName = "ESP32S3_Display";
+
+  BluetoothDevice? _connectedDevice;
+  BluetoothCharacteristic? _rxCharacteristic;
+  BluetoothCharacteristic? _txCharacteristic;
+
+  bool _isConnected = false;
+  bool _isScanning = false;
+  bool _autoConnect = true;
+  bool _isConnecting = false; // Guard against concurrent connection attempts
+  String _statusMessage = "Disconnected";
+
+  bool get isConnected => _isConnected;
+  bool get isScanning => _isScanning;
+  bool get autoConnect => _autoConnect;
+  String get statusMessage => _statusMessage;
+  String get deviceName => _connectedDevice?.platformName ?? "None";
+
+  StreamSubscription? _scanSubscription;
+  StreamSubscription? _connectionSubscription;
+  StreamSubscription? _adapterSubscription;
+  Timer? _reconnectTimer;
+
+  // Initialize and start auto-connect
+  Future<void> initialize() async {
+    // Cancel any previous adapter subscription to avoid duplicates
+    _adapterSubscription?.cancel();
+
+    // Listen for adapter state changes
+    _adapterSubscription = FlutterBluePlus.adapterState.listen((state) {
+      if (state == BluetoothAdapterState.on && _autoConnect && !_isConnected && !_isConnecting) {
+        startScan();
+      }
+    });
+
+    // Start scanning if Bluetooth is already on
+    if (await FlutterBluePlus.isSupported) {
+      final state = await FlutterBluePlus.adapterState.first;
+      if (state == BluetoothAdapterState.on && _autoConnect) {
+        startScan();
+      }
+    }
+  }
+
+  void setAutoConnect(bool value) {
+    _autoConnect = value;
+    notifyListeners();
+    if (value && !_isConnected && !_isConnecting) {
+      startScan();
+    }
+  }
+
+  // Start scanning for the ESP32 device
+  Future<void> startScan() async {
+    if (_isScanning || _isConnected || _isConnecting) return;
+
+    _isScanning = true;
+    _statusMessage = "Scanning...";
+    notifyListeners();
+
+    try {
+      // Stop any ongoing scan first to clean up
+      await FlutterBluePlus.stopScan();
+
+      // Try connecting to a bonded/known device first (fastest path)
+      List<BluetoothDevice> bonded = await FlutterBluePlus.bondedDevices;
+      for (BluetoothDevice device in bonded) {
+        if (device.platformName == targetDeviceName) {
+          print("Found bonded $targetDeviceName, connecting directly...");
+          _isScanning = false;
+          _statusMessage = "Reconnecting to bonded device...";
+          notifyListeners();
+          await _connectToDevice(device);
+          return;
+        }
+      }
+
+      // Cancel previous scan subscription before creating a new one
+      _scanSubscription?.cancel();
+      _scanSubscription = FlutterBluePlus.scanResults.listen((results) {
+        for (ScanResult result in results) {
+          if (result.device.platformName == targetDeviceName) {
+            print("Found $targetDeviceName!");
+            FlutterBluePlus.stopScan();
+            _scanSubscription?.cancel();
+            _scanSubscription = null;
+            _isScanning = false;
+            _connectToDevice(result.device);
+            return;
+          }
+        }
+      });
+
+      // Scan with timeout
+      await FlutterBluePlus.startScan(
+        timeout: const Duration(seconds: 5),
+        androidUsesFineLocation: true,
+      );
+
+      // Wait for scan to finish (use FlutterBluePlus.isScanning instead of arbitrary delay)
+      await FlutterBluePlus.isScanning.where((val) => val == false).first.timeout(
+        const Duration(seconds: 8),
+        onTimeout: () => false,
+      );
+
+      if (!_isConnected && !_isConnecting) {
+        _isScanning = false;
+        _statusMessage = "Device not found";
+        notifyListeners();
+
+        // Retry if auto-connect is enabled, with a longer delay to avoid thrashing
+        if (_autoConnect) {
+          _scheduleReconnect(const Duration(seconds: 3));
+        }
+      }
+    } catch (e) {
+      print("Scan error: $e");
+      _isScanning = false;
+      _statusMessage = "Scan error: $e";
+      notifyListeners();
+
+      if (_autoConnect) {
+        _scheduleReconnect(const Duration(seconds: 3));
+      }
+    }
+  }
+
+  // Connect to the ESP32 device
+  Future<void> _connectToDevice(BluetoothDevice device) async {
+    // Prevent concurrent connection attempts (main fix for fbp-code:10)
+    if (_isConnecting || _isConnected) return;
+    _isConnecting = true;
+
+    try {
+      _statusMessage = "Connecting...";
+      notifyListeners();
+
+      // Disconnect any stale connection first to free GATT client slots
+      // This helps prevent fbp-code:257 (Failure_registering_client)
+      try {
+        await device.disconnect();
+        // Small delay to let the BLE stack clean up the GATT client
+        await Future.delayed(const Duration(milliseconds: 500));
+      } catch (_) {
+        // Ignore errors from disconnecting an already-disconnected device
+      }
+
+      await device.connect(
+        autoConnect: false,
+        timeout: const Duration(seconds: 10),
+      );
+
+      _connectedDevice = device;
+
+      // Listen for disconnection
+      _connectionSubscription?.cancel();
+      _connectionSubscription = device.connectionState.listen((state) {
+        if (state == BluetoothConnectionState.disconnected) {
+          _onDisconnected();
+        }
+      });
+
+      // Discover services
+      _statusMessage = "Discovering services...";
+      notifyListeners();
+
+      // Small delay before service discovery for connection to stabilize
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      List<BluetoothService> services = await device.discoverServices();
+
+      for (BluetoothService service in services) {
+        if (service.uuid.toString().toLowerCase() == serviceUuid) {
+          for (BluetoothCharacteristic c in service.characteristics) {
+            String charUuid = c.uuid.toString().toLowerCase();
+            if (charUuid == rxCharUuid) {
+              _rxCharacteristic = c;
+            } else if (charUuid == txCharUuid) {
+              _txCharacteristic = c;
+              // Subscribe to notifications from ESP32
+              await c.setNotifyValue(true);
+              c.onValueReceived.listen((value) {
+                String received = utf8.decode(value);
+                print("Received from ESP32: $received");
+                _handleEspCommand(received);
+              });
+            }
+          }
+        }
+      }
+
+      if (_rxCharacteristic != null) {
+        _isConnected = true;
+        _isScanning = false;
+        _isConnecting = false;
+        _statusMessage = "Connected";
+        notifyListeners();
+
+        // Send time sync immediately
+        sendTimeSync();
+
+        print("Connected to $targetDeviceName");
+      } else {
+        _statusMessage = "Service not found on device";
+        _isConnecting = false;
+        await device.disconnect();
+        notifyListeners();
+
+        if (_autoConnect) {
+          _scheduleReconnect(const Duration(seconds: 3));
+        }
+      }
+    } catch (e) {
+      print("Connection error: $e");
+      _statusMessage = "Connection failed: $e";
+      _isScanning = false;
+      _isConnecting = false;
+      notifyListeners();
+
+      // Clean up the failed connection to free GATT client slot
+      try {
+        await device.disconnect();
+      } catch (_) {}
+
+      if (_autoConnect) {
+        _scheduleReconnect(const Duration(seconds: 3));
+      }
+    }
+  }
+
+  void _onDisconnected() {
+    _isConnected = false;
+    _isConnecting = false;
+    _connectedDevice = null;
+    _rxCharacteristic = null;
+    _txCharacteristic = null;
+    _statusMessage = "Disconnected";
+    notifyListeners();
+
+    print("Disconnected from ESP32");
+
+    // Auto-reconnect with a reasonable delay
+    if (_autoConnect) {
+      _scheduleReconnect(const Duration(seconds: 2));
+    }
+  }
+
+  // Centralized reconnect scheduling to avoid multiple overlapping timers
+  void _scheduleReconnect(Duration delay) {
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(delay, () {
+      if (_autoConnect && !_isConnected && !_isConnecting) {
+        startScan();
+      }
+    });
+  }
+
+  // Handle commands received from ESP32 via BLE
+  static const MethodChannel _mediaControlChannel =
+      MethodChannel('com.mcdisplay.app/media');
+
+  void _handleEspCommand(String command) {
+    command = command.trim();
+    if (command == "MEDIA PREV") {
+      _mediaControlChannel.invokeMethod('mediaControl', {'action': 'previous'});
+      print("Media control: Previous");
+    } else if (command == "MEDIA NEXT") {
+      _mediaControlChannel.invokeMethod('mediaControl', {'action': 'next'});
+      print("Media control: Next");
+    } else if (command == "MEDIA TOGGLE") {
+      _mediaControlChannel.invokeMethod('mediaControl', {'action': 'toggle'});
+      print("Media control: Toggle");
+    }
+  }
+
+  // Send raw data to ESP32
+  Future<bool> sendData(String data) async {
+    if (!_isConnected || _rxCharacteristic == null) {
+      print("Not connected, cannot send: $data");
+      return false;
+    }
+
+    try {
+      // BLE has a 20-byte MTU by default, but we can send longer with write
+      List<int> bytes = utf8.encode(data);
+      await _rxCharacteristic!.write(bytes, withoutResponse: false);
+      print("Sent to ESP32: $data");
+      return true;
+    } catch (e) {
+      print("Send error: $e");
+      return false;
+    }
+  }
+
+  // Send time sync (Unix epoch)
+  Future<void> sendTimeSync() async {
+    int epoch = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    await sendData("TIME $epoch");
+  }
+
+  // Send music info
+  Future<void> sendMusicInfo({
+    required String state,
+    required String title,
+    required String artist,
+  }) async {
+    // Truncate to fit BLE packet limits
+    String t = title.length > 40 ? title.substring(0, 40) : title;
+    String a = artist.length > 30 ? artist.substring(0, 30) : artist;
+    await sendData("MUSIC $state|$t|$a");
+  }
+
+  // Send navigation data
+  Future<void> sendNavigation({
+    required String distance,
+    required String unit,
+    required double direction,
+    required String instruction,
+  }) async {
+    String inst = instruction.length > 40 ? instruction.substring(0, 40) : instruction;
+    await sendData("NAV $distance|$unit|${direction.toStringAsFixed(0)}|$inst");
+  }
+
+  // Send slide switch command
+  Future<void> sendSlideSwitch(int slideIndex) async {
+    await sendData("SLIDE $slideIndex");
+  }
+
+  Future<void> sendNextSlide() async {
+    await sendData("NEXT_SLIDE");
+  }
+
+  Future<void> sendPrevSlide() async {
+    await sendData("PREV_SLIDE");
+  }
+
+  // Disconnect
+  Future<void> disconnect() async {
+    _autoConnect = false;
+    _isConnecting = false;
+    _reconnectTimer?.cancel();
+    _scanSubscription?.cancel();
+    _connectionSubscription?.cancel();
+
+    try {
+      await FlutterBluePlus.stopScan();
+    } catch (_) {}
+
+    if (_connectedDevice != null) {
+      await _connectedDevice!.disconnect();
+    }
+
+    _isConnected = false;
+    _connectedDevice = null;
+    _rxCharacteristic = null;
+    _txCharacteristic = null;
+    _statusMessage = "Disconnected";
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _reconnectTimer?.cancel();
+    _scanSubscription?.cancel();
+    _connectionSubscription?.cancel();
+    _adapterSubscription?.cancel();
+    super.dispose();
+  }
+}
