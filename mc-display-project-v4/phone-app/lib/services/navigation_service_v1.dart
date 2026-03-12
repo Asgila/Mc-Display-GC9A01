@@ -75,80 +75,12 @@ class NavigationService extends ChangeNotifier {
     }
   }
 
-  /// Try to parse a direction value from native data.
-  /// The native side may send either:
-  ///   - A numeric angle (e.g. "90", "-90", "0") — used directly
-  ///   - A text direction (e.g. "Left", "Turn right", "Slight Left") — mapped via the directions table
-  /// If neither works, returns 0 (straight).
-  double _parseDirection(String? rawDirection, String? instruction) {
-    if (rawDirection == null || rawDirection.isEmpty) {
-      // No explicit direction — try to infer from instruction text
-      return _directionFromText(instruction ?? "");
-    }
-
-    // First, try parsing as a number (e.g. "90", "-45")
-    double? numeric = double.tryParse(rawDirection);
-    if (numeric != null) return numeric;
-
-    // Not a number — try matching against the directions map
-    double? mapped = _directionFromText(rawDirection);
-    if (mapped != 0) return mapped;
-
-    // Last resort: try to extract direction from the instruction text
-    return _directionFromText(instruction ?? "");
-  }
-
-  /// Match text against the directions map using case-insensitive contains matching.
-  /// Examples that should work:
-  ///   "Turn left" → matches "Left" → -90
-  ///   "Slight right onto Main St" → matches "Slight Right" → 45
-  ///   "Make a U-turn" → matches "U-Turn" → 180
-  ///   "Sharp left" → matches "Sharp Left" → -135
-  ///   "Continue straight" → matches "Straight" → 0
-  double _directionFromText(String text) {
-    if (text.isEmpty) return 0;
-    String lower = text.toLowerCase();
-
-    // Check from most specific to least specific to avoid
-    // "Slight Left" matching "Left" first
-    // Order: Sharp Left, Sharp Right, Slight Left, Slight Right, U-Turn, Left, Right, Straight
-    if (lower.contains('u-turn') || lower.contains('u turn') || lower.contains('uturn')) {
-      return directions['U-Turn']!;
-    }
-    if (lower.contains('sharp left')) {
-      return directions['Sharp Left']!;
-    }
-    if (lower.contains('sharp right')) {
-      return directions['Sharp Right']!;
-    }
-    if (lower.contains('slight left')) {
-      return directions['Slight Left']!;
-    }
-    if (lower.contains('slight right')) {
-      return directions['Slight Right']!;
-    }
-    if (lower.contains('left')) {
-      return directions['Left']!;
-    }
-    if (lower.contains('right')) {
-      return directions['Right']!;
-    }
-    if (lower.contains('straight') || lower.contains('continue') || lower.contains('head')) {
-      return directions['Straight']!;
-    }
-
-    return 0;
-  }
-
   void _updateFromNative(Map<dynamic, dynamic> data) {
     bool active = data['active'] == 'true' || data['active'] == true;
     String dist = data['distance']?.toString() ?? "";
     String u = data['unit']?.toString() ?? "";
+    double dir = double.tryParse(data['direction']?.toString() ?? "0") ?? 0;
     String inst = data['instruction']?.toString() ?? "";
-    String rawDir = data['direction']?.toString() ?? "";
-
-    // Parse direction: handles both numeric angles AND text like "Left", "Turn right"
-    double dir = _parseDirection(rawDir, inst);
 
     if (!active && !_isActive) return;
 
