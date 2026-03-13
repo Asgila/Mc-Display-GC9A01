@@ -36,8 +36,28 @@ class BleService extends ChangeNotifier {
   StreamSubscription? _connectionSubscription;
   Timer? _reconnectTimer;
 
+  int _connectFailCount = 0;
+  static const int _maxFailsBeforeReset = 3;
+
   // Initialize and start auto-connect
   Future<void> initialize() async {
+    // Clean up any stale GATT connections left over from a previous app
+    // session (e.g. after a crash or force-close). Each stale connection
+    // occupies a GATT client slot; if enough accumulate Android will
+    // return status 257 on the next connect attempt.
+    try {
+      List<BluetoothDevice> systemDevices =
+          await FlutterBluePlus.systemDevices([]);
+      for (BluetoothDevice d in systemDevices) {
+        try {
+          await d.disconnect();
+        } catch (_) {}
+      }
+      print("Cleaned up ${systemDevices.length} stale system device(s)");
+    } catch (e) {
+      print("Stale-device cleanup error: $e");
+    }
+
     // Listen for adapter state changes
     FlutterBluePlus.adapterState.listen((state) {
       if (state == BluetoothAdapterState.on && _autoConnect && !_isConnected && !_isConnecting) {
@@ -187,6 +207,7 @@ class BleService extends ChangeNotifier {
         _isConnected = true;
         _isScanning = false;
         _isConnecting = false;
+        _connectFailCount = 0; // reset on successful connection
         _statusMessage = "Connected";
         notifyListeners();
 
@@ -215,9 +236,41 @@ class BleService extends ChangeNotifier {
         await device.disconnect();
       } catch (_) {}
 
+      _connectFailCount++;
+
+      // After several consecutive failures (likely due to exhausted GATT
+      // slots / status 257), cycle the Bluetooth adapter off and on.
+      // This forces Android to release all leaked GATT client slots
+      // without losing the bond/pairing, so we don't need to re-pair
+      // in phone settings.
+      if (_connectFailCount >= _maxFailsBeforeReset) {
+        print("$_connectFailCount consecutive failures — resetting BT adapter to recover GATT slots");
+        _connectFailCount = 0;
+        try {
+          await FlutterBluePlus.turnOff();
+          await Future.delayed(const Duration(seconds: 2));
+          await FlutterBluePlus.turnOn();
+          // After turnOn the adapterState listener in initialize() will
+          // automatically trigger startScan() once the adapter is ready.
+        } catch (e) {
+          print("BT adapter reset failed: $e");
+          // turnOff/turnOn may not be available on all devices (e.g. iOS).
+          // Fall back to a longer backoff before retrying.
+          if (_autoConnect) {
+            _reconnectTimer?.cancel();
+            _reconnectTimer = Timer(const Duration(seconds: 10), () {
+              if (_autoConnect && !_isConnected && !_isConnecting) startScan();
+            });
+          }
+        }
+        return;
+      }
+
+      // Exponential backoff: 3s, 6s, 12s … for each consecutive failure.
+      final backoff = 3 * (1 << (_connectFailCount - 1).clamp(0, 4));
       if (_autoConnect) {
         _reconnectTimer?.cancel();
-        _reconnectTimer = Timer(const Duration(seconds: 2), () {
+        _reconnectTimer = Timer(Duration(seconds: backoff), () {
           if (_autoConnect && !_isConnected && !_isConnecting) startScan();
         });
       }
@@ -225,20 +278,38 @@ class BleService extends ChangeNotifier {
   }
 
   void _onDisconnected() {
+    // FIX 257: Save a reference to the device before nulling it so we can
+    // call disconnect() below. In flutter_blue_plus, disconnect() releases
+    // the native BluetoothGatt client (equivalent to BluetoothGatt.close()
+    // in native Android). Without this call, every unexpected disconnection
+    // leaks a GATT client slot, and after ~30-60 leaks Android returns
+    // status 257 on the next connection attempt.
+    final device = _connectedDevice;
+
     _isConnected = false;
     _isConnecting = false;
     _connectedDevice = null;
     _rxCharacteristic = null;
     _txCharacteristic = null;
+    _connectionSubscription?.cancel();
+    _connectionSubscription = null;
     _statusMessage = "Disconnected";
     notifyListeners();
 
+    // Explicitly close the GATT client to free the connection slot.
+    if (device != null) {
+      try {
+        device.disconnect();
+      } catch (_) {}
+    }
+
     print("Disconnected from ESP32");
 
-    // Auto-reconnect quickly
+    // Auto-reconnect — use a longer delay to avoid rapid reconnect loops
+    // which can also contribute to GATT slot exhaustion.
     if (_autoConnect) {
       _reconnectTimer?.cancel();
-      _reconnectTimer = Timer(const Duration(seconds: 1), () {
+      _reconnectTimer = Timer(const Duration(seconds: 3), () {
         if (_autoConnect && !_isConnected && !_isConnecting) startScan();
       });
     }

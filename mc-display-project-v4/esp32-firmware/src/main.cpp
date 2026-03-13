@@ -7,6 +7,509 @@
 #include <Wire.h>
 #include <math.h>
 
+// Set to 0 to disable custom fonts and use default bitmap font
+#define USE_CUSTOM_FONTS 1
+
+#if USE_CUSTOM_FONTS
+// ====== EMBEDDED FONT DATA (FreeSansBold 9pt & 12pt from Adafruit GFX) ======
+// Embedded directly to avoid dependency on Adafruit_GFX library headers.
+const uint8_t FreeSansBold9pt7bBitmaps[] PROGMEM = {
+    0xFF, 0xFF, 0xFE, 0x48, 0x7E, 0xEF, 0xDF, 0xBF, 0x74, 0x40, 0x19, 0x86,
+    0x67, 0xFD, 0xFF, 0x33, 0x0C, 0xC3, 0x33, 0xFE, 0xFF, 0x99, 0x86, 0x61,
+    0x90, 0x10, 0x1F, 0x1F, 0xDE, 0xFF, 0x3F, 0x83, 0xC0, 0xFC, 0x1F, 0x09,
+    0xFC, 0xFE, 0xF7, 0xF1, 0xE0, 0x40, 0x38, 0x10, 0x7C, 0x30, 0xC6, 0x20,
+    0xC6, 0x40, 0xC6, 0x40, 0x7C, 0x80, 0x39, 0x9C, 0x01, 0x3E, 0x03, 0x63,
+    0x02, 0x63, 0x04, 0x63, 0x0C, 0x3E, 0x08, 0x1C, 0x0E, 0x01, 0xF8, 0x3B,
+    0x83, 0xB8, 0x3F, 0x01, 0xE0, 0x3E, 0x67, 0x76, 0xE3, 0xEE, 0x1C, 0xF3,
+    0xC7, 0xFE, 0x3F, 0x70, 0xFF, 0xF4, 0x18, 0x63, 0x1C, 0x73, 0x8E, 0x38,
+    0xE3, 0x8E, 0x18, 0x70, 0xC3, 0x06, 0x08, 0x61, 0x83, 0x0E, 0x38, 0x71,
+    0xC7, 0x1C, 0x71, 0xC6, 0x38, 0xE3, 0x18, 0x40, 0x21, 0x3E, 0x45, 0x28,
+    0x38, 0x70, 0xE7, 0xFF, 0xE7, 0x0E, 0x1C, 0xFC, 0x9C, 0xFF, 0xC0, 0xFC,
+    0x08, 0xC4, 0x23, 0x10, 0x84, 0x62, 0x11, 0x88, 0x00, 0x3E, 0x3F, 0x9D,
+    0xDC, 0x7E, 0x3F, 0x1F, 0x8F, 0xC7, 0xE3, 0xF1, 0xDD, 0xCF, 0xE3, 0xE0,
+    0x08, 0xFF, 0xF3, 0x9C, 0xE7, 0x39, 0xCE, 0x73, 0x80, 0x3E, 0x3F, 0xB8,
+    0xFC, 0x70, 0x38, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x1C, 0x0F, 0xF7, 0xF8,
+    0x3C, 0x7F, 0xE7, 0xE7, 0x07, 0x0C, 0x0E, 0x07, 0x07, 0xE7, 0xE7, 0x7E,
+    0x3C, 0x0E, 0x1E, 0x1E, 0x2E, 0x2E, 0x4E, 0x4E, 0x8E, 0xFF, 0xFF, 0x0E,
+    0x0E, 0x0E, 0x7F, 0x3F, 0x90, 0x18, 0x0D, 0xE7, 0xFB, 0x9E, 0x07, 0x03,
+    0x81, 0xF1, 0xFF, 0xE7, 0xC0, 0x3E, 0x3F, 0x9C, 0xFC, 0x0E, 0xE7, 0xFB,
+    0xDF, 0xC7, 0xE3, 0xF1, 0xDD, 0xEF, 0xE3, 0xE0, 0xFF, 0xFF, 0xC0, 0xE0,
+    0xE0, 0x60, 0x70, 0x30, 0x38, 0x1C, 0x0C, 0x0E, 0x07, 0x03, 0x80, 0x3F,
+    0x1F, 0xEE, 0x3F, 0x87, 0xE3, 0xCF, 0xC7, 0xFB, 0xCF, 0xE1, 0xF8, 0x7F,
+    0x3D, 0xFE, 0x3F, 0x00, 0x3E, 0x3F, 0xBD, 0xDC, 0x7E, 0x3F, 0x1F, 0xDE,
+    0xFF, 0x3B, 0x81, 0xF9, 0xCF, 0xE3, 0xC0, 0xFC, 0x00, 0x07, 0xE0, 0xFC,
+    0x00, 0x07, 0xE5, 0xE0, 0x00, 0x83, 0xC7, 0xDF, 0x0C, 0x07, 0x80, 0xF8,
+    0x1F, 0x01, 0x80, 0xFF, 0xFF, 0xC0, 0x00, 0x0F, 0xFF, 0xFC, 0x00, 0x70,
+    0x3F, 0x03, 0xE0, 0x38, 0x7D, 0xF1, 0xE0, 0x80, 0x00, 0x3E, 0x3F, 0xB8,
+    0xFC, 0x70, 0x38, 0x1C, 0x1C, 0x1C, 0x1C, 0x0E, 0x00, 0x03, 0x81, 0xC0,
+    0x03, 0xF0, 0x0F, 0xFC, 0x1E, 0x0E, 0x38, 0x02, 0x70, 0xE9, 0x63, 0x19,
+    0xC2, 0x19, 0xC6, 0x11, 0xC6, 0x33, 0xC6, 0x32, 0x63, 0xFE, 0x73, 0xDC,
+    0x3C, 0x00, 0x1F, 0xF8, 0x07, 0xF0, 0x07, 0x00, 0xF0, 0x0F, 0x80, 0xF8,
+    0x1D, 0x81, 0x9C, 0x19, 0xC3, 0x8C, 0x3F, 0xE7, 0xFE, 0x70, 0x66, 0x07,
+    0xE0, 0x70, 0xFF, 0x9F, 0xFB, 0x83, 0xF0, 0x7E, 0x0F, 0xFF, 0x3F, 0xF7,
+    0x06, 0xE0, 0xFC, 0x1F, 0x83, 0xFF, 0xEF, 0xF8, 0x1F, 0x83, 0xFE, 0x78,
+    0xE7, 0x07, 0xE0, 0x0E, 0x00, 0xE0, 0x0E, 0x00, 0xE0, 0x07, 0x07, 0x78,
+    0xF3, 0xFE, 0x1F, 0x80, 0xFF, 0x8F, 0xFC, 0xE0, 0xEE, 0x0E, 0xE0, 0x7E,
+    0x07, 0xE0, 0x7E, 0x07, 0xE0, 0x7E, 0x0E, 0xE0, 0xEF, 0xFC, 0xFF, 0x80,
+    0xFF, 0xFF, 0xF8, 0x1C, 0x0E, 0x07, 0xFB, 0xFD, 0xC0, 0xE0, 0x70, 0x38,
+    0x1F, 0xFF, 0xF8, 0xFF, 0xFF, 0xF8, 0x1C, 0x0E, 0x07, 0xFB, 0xFD, 0xC0,
+    0xE0, 0x70, 0x38, 0x1C, 0x0E, 0x00, 0x0F, 0x87, 0xF9, 0xE3, 0xB8, 0x3E,
+    0x01, 0xC0, 0x38, 0xFF, 0x1F, 0xE0, 0x6E, 0x0D, 0xE3, 0x9F, 0xD0, 0xF2,
+    0xE0, 0xFC, 0x1F, 0x83, 0xF0, 0x7E, 0x0F, 0xFF, 0xFF, 0xFF, 0x07, 0xE0,
+    0xFC, 0x1F, 0x83, 0xF0, 0x7E, 0x0E, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0x07,
+    0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0xE7, 0xE7, 0xE7, 0x7E, 0x3C,
+    0xE0, 0xEE, 0x1C, 0xE3, 0x8E, 0x70, 0xEE, 0x0F, 0xC0, 0xFE, 0x0F, 0x70,
+    0xE7, 0x0E, 0x38, 0xE1, 0xCE, 0x0E, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0,
+    0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xE0, 0xFF, 0xFF, 0xF8, 0x7F, 0xE1,
+    0xFF, 0x87, 0xFE, 0x1F, 0xEC, 0x7F, 0xB3, 0x7E, 0xCD, 0xFB, 0x37, 0xEC,
+    0xDF, 0x9E, 0x7E, 0x79, 0xF9, 0xE7, 0xE7, 0x9C, 0xE0, 0xFE, 0x1F, 0xC3,
+    0xFC, 0x7F, 0xCF, 0xD9, 0xFB, 0xBF, 0x37, 0xE7, 0xFC, 0x7F, 0x87, 0xF0,
+    0xFE, 0x0E, 0x0F, 0x81, 0xFF, 0x1E, 0x3C, 0xE0, 0xEE, 0x03, 0xF0, 0x1F,
+    0x80, 0xFC, 0x07, 0xE0, 0x3B, 0x83, 0x9E, 0x3C, 0x7F, 0xC0, 0xF8, 0x00,
+    0xFF, 0x9F, 0xFB, 0x87, 0xF0, 0x7E, 0x0F, 0xC3, 0xFF, 0xF7, 0xFC, 0xE0,
+    0x1C, 0x03, 0x80, 0x70, 0x0E, 0x00, 0x0F, 0x81, 0xFF, 0x1E, 0x3C, 0xE0,
+    0xEE, 0x03, 0xF0, 0x1F, 0x80, 0xFC, 0x07, 0xE1, 0xBB, 0x8F, 0x9E, 0x3C,
+    0x7F, 0xE0, 0xFB, 0x80, 0x08, 0xFF, 0x8F, 0xFC, 0xE0, 0xEE, 0x0E, 0xE0,
+    0xEE, 0x0E, 0xFF, 0xCF, 0xFC, 0xE0, 0xEE, 0x0E, 0xE0, 0xEE, 0x0E, 0xE0,
+    0xF0, 0x3F, 0x0F, 0xFB, 0xC7, 0xF0, 0x7E, 0x01, 0xFC, 0x1F, 0xF0, 0x3F,
+    0x00, 0xFC, 0x1D, 0xC7, 0xBF, 0xE1, 0xF8, 0xFF, 0xFF, 0xC7, 0x03, 0x81,
+    0xC0, 0xE0, 0x70, 0x38, 0x1C, 0x0E, 0x07, 0x03, 0x81, 0xC0, 0xE0, 0xFC,
+    0x1F, 0x83, 0xF0, 0x7E, 0x0F, 0xC1, 0xF8, 0x3F, 0x07, 0xE0, 0xFC, 0x1F,
+    0xC7, 0xBF, 0xE1, 0xF0, 0x60, 0x67, 0x0E, 0x70, 0xE3, 0x0C, 0x30, 0xC3,
+    0x9C, 0x19, 0x81, 0x98, 0x1F, 0x80, 0xF0, 0x0F, 0x00, 0xF0, 0x06, 0x00,
+    0x61, 0xC3, 0xB8, 0xE1, 0x9C, 0x70, 0xCE, 0x3C, 0xE3, 0x36, 0x71, 0x9B,
+    0x30, 0xED, 0x98, 0x36, 0x7C, 0x1B, 0x3C, 0x0F, 0x1E, 0x07, 0x8F, 0x01,
+    0xC3, 0x80, 0xE1, 0x80, 0x70, 0xE7, 0x8E, 0x39, 0xC1, 0xF8, 0x1F, 0x80,
+    0xF0, 0x07, 0x00, 0xF0, 0x1F, 0x81, 0x9C, 0x39, 0xC7, 0x0E, 0x70, 0xE0,
+    0xE0, 0xFC, 0x39, 0xC7, 0x18, 0xC3, 0xB8, 0x36, 0x07, 0xC0, 0x70, 0x0E,
+    0x01, 0xC0, 0x38, 0x07, 0x00, 0xE0, 0xFF, 0xFF, 0xC0, 0xE0, 0xE0, 0xF0,
+    0x70, 0x70, 0x70, 0x78, 0x38, 0x38, 0x1F, 0xFF, 0xF8, 0xFF, 0xEE, 0xEE,
+    0xEE, 0xEE, 0xEE, 0xEE, 0xEF, 0xF0, 0x86, 0x10, 0x86, 0x10, 0x84, 0x30,
+    0x84, 0x30, 0x80, 0xFF, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x7F, 0xF0,
+    0x18, 0x1C, 0x3C, 0x3E, 0x36, 0x66, 0x63, 0xC3, 0xFF, 0xC0, 0xCC, 0x3F,
+    0x1F, 0xEE, 0x38, 0x0E, 0x3F, 0x9E, 0xEE, 0x3B, 0x9E, 0xFF, 0x9E, 0xE0,
+    0xE0, 0x38, 0x0E, 0x03, 0xBC, 0xFF, 0xBC, 0xEE, 0x1F, 0x87, 0xE1, 0xF8,
+    0x7F, 0x3B, 0xFE, 0xEF, 0x00, 0x1F, 0x3F, 0xDC, 0x7C, 0x0E, 0x07, 0x03,
+    0x80, 0xE3, 0x7F, 0x8F, 0x00, 0x03, 0x81, 0xC0, 0xE7, 0x77, 0xFB, 0xBF,
+    0x8F, 0xC7, 0xE3, 0xF1, 0xFD, 0xEF, 0xF3, 0xB8, 0x3E, 0x3F, 0x9C, 0xDC,
+    0x3F, 0xFF, 0xFF, 0x81, 0xC3, 0x7F, 0x8F, 0x00, 0x3B, 0xDD, 0xFF, 0xB9,
+    0xCE, 0x73, 0x9C, 0xE7, 0x00, 0x3B, 0xBF, 0xDD, 0xFC, 0x7E, 0x3F, 0x1F,
+    0x8F, 0xEF, 0x7F, 0x9D, 0xC0, 0xFC, 0x77, 0xF1, 0xF0, 0xE0, 0x70, 0x38,
+    0x1D, 0xEF, 0xFF, 0x9F, 0x8F, 0xC7, 0xE3, 0xF1, 0xF8, 0xFC, 0x7E, 0x38,
+    0xFC, 0x7F, 0xFF, 0xFF, 0xFE, 0x77, 0x07, 0x77, 0x77, 0x77, 0x77, 0x77,
+    0x7F, 0xE0, 0xE0, 0x70, 0x38, 0x1C, 0x7E, 0x77, 0x73, 0xF1, 0xF8, 0xFE,
+    0x77, 0x39, 0xDC, 0x6E, 0x38, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xEF, 0x7B,
+    0xFF, 0xFE, 0x39, 0xF8, 0xE7, 0xE3, 0x9F, 0x8E, 0x7E, 0x39, 0xF8, 0xE7,
+    0xE3, 0x9F, 0x8E, 0x70, 0xEF, 0x7F, 0xF8, 0xFC, 0x7E, 0x3F, 0x1F, 0x8F,
+    0xC7, 0xE3, 0xF1, 0xC0, 0x1E, 0x1F, 0xE7, 0x3B, 0x87, 0xE1, 0xF8, 0x7E,
+    0x1D, 0xCE, 0x7F, 0x87, 0x80, 0xEF, 0x3F, 0xEF, 0x3B, 0x87, 0xE1, 0xF8,
+    0x7E, 0x1F, 0xCE, 0xFF, 0xBB, 0xCE, 0x03, 0x80, 0xE0, 0x38, 0x00, 0x3B,
+    0xBF, 0xFD, 0xFC, 0x7E, 0x3F, 0x1F, 0x8F, 0xEF, 0x7F, 0x9D, 0xC0, 0xE0,
+    0x70, 0x38, 0x1C, 0xEF, 0xFF, 0x38, 0xE3, 0x8E, 0x38, 0xE3, 0x80, 0x3E,
+    0x3F, 0xB8, 0xFC, 0x0F, 0xC3, 0xFC, 0x3F, 0xC7, 0xFF, 0x1F, 0x00, 0x73,
+    0xBF, 0xF7, 0x39, 0xCE, 0x73, 0x9E, 0x70, 0xE3, 0xF1, 0xF8, 0xFC, 0x7E,
+    0x3F, 0x1F, 0x8F, 0xC7, 0xFF, 0xBD, 0xC0, 0xE1, 0x98, 0x67, 0x39, 0xCC,
+    0x33, 0x0D, 0xC3, 0xE0, 0x78, 0x1E, 0x07, 0x00, 0xE3, 0x1D, 0x9E, 0x66,
+    0x79, 0x99, 0xE6, 0x77, 0xB8, 0xD2, 0xC3, 0xCF, 0x0F, 0x3C, 0x3C, 0xF0,
+    0x73, 0x80, 0x73, 0x9C, 0xE3, 0xF0, 0x78, 0x1E, 0x07, 0x81, 0xE0, 0xFC,
+    0x73, 0x9C, 0xE0, 0xE1, 0xD8, 0x67, 0x39, 0xCE, 0x33, 0x0E, 0xC3, 0xE0,
+    0x78, 0x1E, 0x03, 0x00, 0xC0, 0x70, 0x38, 0x0E, 0x00, 0xFE, 0xFE, 0x0E,
+    0x1C, 0x38, 0x38, 0x70, 0xE0, 0xFF, 0xFF, 0x37, 0x66, 0x66, 0x6E, 0xE6,
+    0x66, 0x66, 0x67, 0x30, 0xFF, 0xFF, 0x80, 0xCE, 0x66, 0x66, 0x67, 0x76,
+    0x66, 0x66, 0x6E, 0xC0, 0x71, 0x8E};
+
+const GFXglyph FreeSansBold9pt7bGlyphs[] PROGMEM = {
+    {0, 0, 0, 5, 0, 1},        // 0x20 ' '
+    {0, 3, 13, 6, 2, -12},     // 0x21 '!'
+    {5, 7, 5, 9, 1, -12},      // 0x22 '"'
+    {10, 10, 12, 10, 0, -11},  // 0x23 '#'
+    {25, 9, 15, 10, 1, -13},   // 0x24 '$'
+    {42, 16, 13, 16, 0, -12},  // 0x25 '%'
+    {68, 12, 13, 13, 1, -12},  // 0x26 '&'
+    {88, 3, 5, 5, 1, -12},     // 0x27 '''
+    {90, 6, 17, 6, 1, -12},    // 0x28 '('
+    {103, 6, 17, 6, 0, -12},   // 0x29 ')'
+    {116, 5, 6, 7, 1, -12},    // 0x2A '*'
+    {120, 7, 8, 11, 2, -7},    // 0x2B '+'
+    {127, 3, 5, 4, 1, -1},     // 0x2C ','
+    {129, 5, 2, 6, 0, -5},     // 0x2D '-'
+    {131, 3, 2, 4, 1, -1},     // 0x2E '.'
+    {132, 5, 13, 5, 0, -12},   // 0x2F '/'
+    {141, 9, 13, 10, 1, -12},  // 0x30 '0'
+    {156, 5, 13, 10, 2, -12},  // 0x31 '1'
+    {165, 9, 13, 10, 1, -12},  // 0x32 '2'
+    {180, 8, 13, 10, 1, -12},  // 0x33 '3'
+    {193, 8, 13, 10, 2, -12},  // 0x34 '4'
+    {206, 9, 13, 10, 1, -12},  // 0x35 '5'
+    {221, 9, 13, 10, 1, -12},  // 0x36 '6'
+    {236, 9, 13, 10, 0, -12},  // 0x37 '7'
+    {251, 10, 13, 10, 0, -12}, // 0x38 '8'
+    {268, 9, 13, 10, 1, -12},  // 0x39 '9'
+    {283, 3, 9, 4, 1, -8},     // 0x3A ':'
+    {287, 3, 12, 4, 1, -8},    // 0x3B ';'
+    {292, 9, 9, 11, 1, -8},    // 0x3C '<'
+    {303, 9, 6, 11, 1, -6},    // 0x3D '='
+    {310, 9, 9, 11, 1, -8},    // 0x3E '>'
+    {321, 9, 13, 11, 1, -12},  // 0x3F '?'
+    {336, 16, 15, 18, 0, -12}, // 0x40 '@'
+    {366, 12, 13, 13, 0, -12}, // 0x41 'A'
+    {386, 11, 13, 13, 1, -12}, // 0x42 'B'
+    {404, 12, 13, 13, 1, -12}, // 0x43 'C'
+    {424, 12, 13, 13, 1, -12}, // 0x44 'D'
+    {444, 9, 13, 12, 1, -12},  // 0x45 'E'
+    {459, 9, 13, 11, 1, -12},  // 0x46 'F'
+    {474, 11, 13, 14, 1, -12}, // 0x47 'G'
+    {492, 11, 13, 13, 1, -12}, // 0x48 'H'
+    {510, 3, 13, 6, 1, -12},   // 0x49 'I'
+    {515, 8, 13, 10, 1, -12},  // 0x4A 'J'
+    {528, 12, 13, 13, 1, -12}, // 0x4B 'K'
+    {548, 8, 13, 11, 1, -12},  // 0x4C 'L'
+    {561, 14, 13, 16, 1, -12}, // 0x4D 'M'
+    {584, 11, 13, 14, 1, -12}, // 0x4E 'N'
+    {602, 13, 13, 14, 1, -12}, // 0x4F 'O'
+    {624, 11, 13, 12, 1, -12}, // 0x50 'P'
+    {642, 13, 14, 14, 1, -12}, // 0x51 'Q'
+    {665, 12, 13, 13, 1, -12}, // 0x52 'R'
+    {685, 11, 13, 12, 1, -12}, // 0x53 'S'
+    {703, 9, 13, 12, 2, -12},  // 0x54 'T'
+    {718, 11, 13, 13, 1, -12}, // 0x55 'U'
+    {736, 12, 13, 12, 0, -12}, // 0x56 'V'
+    {756, 17, 13, 17, 0, -12}, // 0x57 'W'
+    {784, 12, 13, 12, 0, -12}, // 0x58 'X'
+    {804, 11, 13, 12, 1, -12}, // 0x59 'Y'
+    {822, 9, 13, 11, 1, -12},  // 0x5A 'Z'
+    {837, 4, 17, 6, 1, -12},   // 0x5B '['
+    {846, 5, 13, 5, 0, -12},   // 0x5C '\'
+    {855, 4, 17, 6, 0, -12},   // 0x5D ']'
+    {864, 8, 8, 11, 1, -12},   // 0x5E '^'
+    {872, 10, 1, 10, 0, 4},    // 0x5F '_'
+    {874, 3, 2, 5, 0, -12},    // 0x60 '`'
+    {875, 10, 10, 10, 1, -9},  // 0x61 'a'
+    {888, 10, 13, 11, 1, -12}, // 0x62 'b'
+    {905, 9, 10, 10, 1, -9},   // 0x63 'c'
+    {917, 9, 13, 11, 1, -12},  // 0x64 'd'
+    {932, 9, 10, 10, 1, -9},   // 0x65 'e'
+    {944, 5, 13, 6, 1, -12},   // 0x66 'f'
+    {953, 9, 14, 11, 1, -9},   // 0x67 'g'
+    {969, 9, 13, 11, 1, -12},  // 0x68 'h'
+    {984, 3, 13, 5, 1, -12},   // 0x69 'i'
+    {989, 4, 17, 5, 0, -12},   // 0x6A 'j'
+    {998, 9, 13, 10, 1, -12},  // 0x6B 'k'
+    {1013, 3, 13, 5, 1, -12},  // 0x6C 'l'
+    {1018, 14, 10, 16, 1, -9}, // 0x6D 'm'
+    {1036, 9, 10, 11, 1, -9},  // 0x6E 'n'
+    {1048, 10, 10, 11, 1, -9}, // 0x6F 'o'
+    {1061, 10, 14, 11, 1, -9}, // 0x70 'p'
+    {1079, 9, 14, 11, 1, -9},  // 0x71 'q'
+    {1095, 6, 10, 7, 1, -9},   // 0x72 'r'
+    {1103, 9, 10, 10, 1, -9},  // 0x73 's'
+    {1115, 5, 12, 6, 1, -11},  // 0x74 't'
+    {1123, 9, 10, 11, 1, -9},  // 0x75 'u'
+    {1135, 10, 10, 10, 0, -9}, // 0x76 'v'
+    {1148, 14, 10, 14, 0, -9}, // 0x77 'w'
+    {1166, 10, 10, 10, 0, -9}, // 0x78 'x'
+    {1179, 10, 14, 10, 0, -9}, // 0x79 'y'
+    {1197, 8, 10, 9, 1, -9},   // 0x7A 'z'
+    {1207, 4, 17, 7, 1, -12},  // 0x7B '{'
+    {1216, 1, 17, 5, 2, -12},  // 0x7C '|'
+    {1219, 4, 17, 7, 2, -12},  // 0x7D '}'
+    {1228, 8, 2, 9, 0, -4}};   // 0x7E '~'
+
+const GFXfont FreeSansBold9pt7b PROGMEM = {(uint8_t *)FreeSansBold9pt7bBitmaps,
+                                           (GFXglyph *)FreeSansBold9pt7bGlyphs,
+                                           0x20, 0x7E, 22};
+
+// Approx. 1902 bytes
+
+const uint8_t FreeSansBold12pt7bBitmaps[] PROGMEM = {
+    0xFF, 0xFF, 0xFF, 0xFF, 0x76, 0x66, 0x60, 0xFF, 0xF0, 0xF3, 0xFC, 0xFF,
+    0x3F, 0xCF, 0x61, 0x98, 0x60, 0x0E, 0x70, 0x73, 0x83, 0x18, 0xFF, 0xF7,
+    0xFF, 0xBF, 0xFC, 0x73, 0x83, 0x18, 0x18, 0xC7, 0xFF, 0xBF, 0xFD, 0xFF,
+    0xE3, 0x18, 0x39, 0xC1, 0xCE, 0x0E, 0x70, 0x02, 0x00, 0x7E, 0x0F, 0xF8,
+    0x7F, 0xE7, 0xAF, 0xB9, 0x3D, 0xC8, 0x0F, 0x40, 0x3F, 0x00, 0xFF, 0x00,
+    0xFC, 0x05, 0xFF, 0x27, 0xF9, 0x3F, 0xEB, 0xEF, 0xFE, 0x3F, 0xE0, 0x7C,
+    0x00, 0x80, 0x04, 0x00, 0x3C, 0x06, 0x0F, 0xC1, 0x81, 0xFC, 0x30, 0x73,
+    0x8C, 0x0C, 0x31, 0x81, 0xCE, 0x60, 0x1F, 0xCC, 0x03, 0xF3, 0x00, 0x3C,
+    0x67, 0x80, 0x19, 0xF8, 0x02, 0x7F, 0x80, 0xCE, 0x70, 0x11, 0x86, 0x06,
+    0x39, 0xC1, 0x87, 0xF8, 0x30, 0x7E, 0x0C, 0x07, 0x80, 0x07, 0x80, 0x1F,
+    0xC0, 0x3F, 0xE0, 0x3C, 0xE0, 0x3C, 0xE0, 0x3E, 0xE0, 0x0F, 0xC0, 0x07,
+    0x00, 0x3F, 0x8C, 0x7F, 0xCC, 0xF1, 0xFC, 0xF0, 0xF8, 0xF0, 0x78, 0xF8,
+    0xF8, 0x7F, 0xFC, 0x3F, 0xDE, 0x1F, 0x8E, 0xFF, 0xFF, 0x66, 0x0C, 0x73,
+    0x8E, 0x71, 0xC7, 0x38, 0xE3, 0x8E, 0x38, 0xE3, 0x8E, 0x1C, 0x71, 0xC3,
+    0x8E, 0x18, 0x70, 0xC3, 0x87, 0x1C, 0x38, 0xE3, 0x87, 0x1C, 0x71, 0xC7,
+    0x1C, 0x71, 0xCE, 0x38, 0xE7, 0x1C, 0x63, 0x80, 0x10, 0x23, 0x5F, 0xF3,
+    0x87, 0x1B, 0x14, 0x0E, 0x01, 0xC0, 0x38, 0x07, 0x0F, 0xFF, 0xFF, 0xFF,
+    0xF8, 0x70, 0x0E, 0x01, 0xC0, 0x38, 0x00, 0xFF, 0xF3, 0x36, 0xC0, 0xFF,
+    0xFF, 0xC0, 0xFF, 0xF0, 0x0C, 0x30, 0x86, 0x18, 0x61, 0x0C, 0x30, 0xC2,
+    0x18, 0x61, 0x84, 0x30, 0xC0, 0x1F, 0x83, 0xFC, 0x7F, 0xE7, 0x9E, 0xF0,
+    0xFF, 0x0F, 0xF0, 0xFF, 0x0F, 0xF0, 0xFF, 0x0F, 0xF0, 0xFF, 0x0F, 0xF0,
+    0xF7, 0x9E, 0x7F, 0xE3, 0xFC, 0x0F, 0x00, 0x06, 0x1C, 0x7F, 0xFF, 0xE3,
+    0xC7, 0x8F, 0x1E, 0x3C, 0x78, 0xF1, 0xE3, 0xC7, 0x8F, 0x1E, 0x1F, 0x83,
+    0xFC, 0x7F, 0xEF, 0x9F, 0xF0, 0xFF, 0x0F, 0x00, 0xF0, 0x0F, 0x01, 0xE0,
+    0x3C, 0x0F, 0x81, 0xE0, 0x3C, 0x03, 0x80, 0x7F, 0xF7, 0xFF, 0x7F, 0xF0,
+    0x1F, 0x07, 0xFC, 0xFF, 0xEF, 0x1E, 0xF1, 0xE0, 0x1E, 0x03, 0xC0, 0x78,
+    0x07, 0xC0, 0x1E, 0x00, 0xF0, 0x0F, 0xF0, 0xFF, 0x1F, 0x7F, 0xE7, 0xFC,
+    0x1F, 0x80, 0x03, 0xC0, 0xF8, 0x1F, 0x07, 0xE1, 0xBC, 0x27, 0x8C, 0xF3,
+    0x1E, 0x63, 0xD8, 0x7B, 0xFF, 0xFF, 0xFF, 0xFE, 0x07, 0x80, 0xF0, 0x1E,
+    0x03, 0xC0, 0x3F, 0xE7, 0xFE, 0x7F, 0xE7, 0x00, 0x60, 0x06, 0xF8, 0x7F,
+    0xCF, 0xFE, 0xF1, 0xF0, 0x0F, 0x00, 0xF0, 0x0F, 0x00, 0xFE, 0x1E, 0xFF,
+    0xE7, 0xFC, 0x3F, 0x00, 0x0F, 0x83, 0xFC, 0x7F, 0xE7, 0x9F, 0xF0, 0x0F,
+    0x78, 0xFF, 0xCF, 0xFE, 0xF9, 0xFF, 0x0F, 0xF0, 0xFF, 0x0F, 0xF0, 0xF7,
+    0x9F, 0x7F, 0xE3, 0xFC, 0x0F, 0x80, 0xFF, 0xFF, 0xFF, 0xFF, 0x80, 0xE0,
+    0x1C, 0x07, 0x01, 0xE0, 0x38, 0x0F, 0x01, 0xC0, 0x78, 0x0F, 0x01, 0xE0,
+    0x38, 0x0F, 0x01, 0xE0, 0x3C, 0x00, 0x0F, 0x03, 0xFC, 0x7F, 0xC7, 0x9E,
+    0x70, 0xE7, 0x0E, 0x39, 0xC1, 0xF8, 0x3F, 0xC7, 0x9E, 0xF0, 0xFF, 0x0F,
+    0xF0, 0xFF, 0x9F, 0x7F, 0xE3, 0xFC, 0x1F, 0x80, 0x1F, 0x03, 0xFC, 0x7F,
+    0xEF, 0x9E, 0xF0, 0xEF, 0x0F, 0xF0, 0xFF, 0x0F, 0xF9, 0xF7, 0xFF, 0x3F,
+    0xF1, 0xEF, 0x00, 0xEF, 0x1E, 0x7F, 0xE7, 0xFC, 0x1F, 0x00, 0xFF, 0xF0,
+    0x00, 0x00, 0x0F, 0xFF, 0xFF, 0xF0, 0x00, 0x00, 0x0F, 0xFF, 0x11, 0x6C,
+    0x00, 0x10, 0x07, 0x03, 0xF1, 0xFC, 0x7E, 0x0F, 0x80, 0xE0, 0x0F, 0xC0,
+    0x3F, 0x80, 0x7F, 0x00, 0xF0, 0x03, 0xFF, 0xFF, 0xFF, 0xFF, 0xF0, 0x00,
+    0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xF0, 0x00, 0x0E, 0x00, 0xFC,
+    0x07, 0xF0, 0x0F, 0xE0, 0x1F, 0x00, 0xF0, 0x7F, 0x1F, 0x8F, 0xE0, 0xF0,
+    0x08, 0x00, 0x1F, 0x07, 0xFC, 0x7F, 0xEF, 0x9F, 0xF0, 0xFF, 0x0F, 0x00,
+    0xF0, 0x0F, 0x01, 0xE0, 0x3C, 0x07, 0x80, 0xF0, 0x0E, 0x00, 0xE0, 0x00,
+    0x00, 0xF0, 0x0F, 0x00, 0xF0, 0x00, 0xFE, 0x00, 0x1F, 0xFC, 0x03, 0xC0,
+    0xF0, 0x38, 0x01, 0xC3, 0x80, 0x07, 0x18, 0x3D, 0x99, 0x87, 0xEC, 0x6C,
+    0x71, 0xC3, 0xC3, 0x06, 0x1E, 0x18, 0x30, 0xF1, 0x81, 0x87, 0x8C, 0x18,
+    0x7C, 0x60, 0xC3, 0x63, 0x8E, 0x3B, 0x8F, 0xDF, 0x8C, 0x3C, 0xF0, 0x70,
+    0x00, 0x01, 0xC0, 0x00, 0x07, 0x80, 0x80, 0x1F, 0xFE, 0x00, 0x1F, 0xC0,
+    0x00, 0x03, 0xE0, 0x03, 0xE0, 0x03, 0xE0, 0x07, 0xF0, 0x07, 0xF0, 0x07,
+    0x70, 0x0F, 0x78, 0x0E, 0x78, 0x0E, 0x38, 0x1E, 0x3C, 0x1C, 0x3C, 0x3F,
+    0xFC, 0x3F, 0xFE, 0x3F, 0xFE, 0x78, 0x0E, 0x78, 0x0F, 0x70, 0x0F, 0xF0,
+    0x07, 0xFF, 0xC3, 0xFF, 0xCF, 0xFF, 0x3C, 0x3E, 0xF0, 0x7B, 0xC1, 0xEF,
+    0x0F, 0xBF, 0xFC, 0xFF, 0xE3, 0xFF, 0xCF, 0x07, 0xBC, 0x0F, 0xF0, 0x3F,
+    0xC0, 0xFF, 0x07, 0xFF, 0xFE, 0xFF, 0xFB, 0xFF, 0x80, 0x07, 0xE0, 0x1F,
+    0xF8, 0x3F, 0xFC, 0x7C, 0x3E, 0x78, 0x1F, 0xF8, 0x0F, 0xF0, 0x00, 0xF0,
+    0x00, 0xF0, 0x00, 0xF0, 0x00, 0xF0, 0x00, 0xF0, 0x00, 0xF8, 0x0F, 0x78,
+    0x1F, 0x7C, 0x3E, 0x3F, 0xFE, 0x1F, 0xFC, 0x07, 0xF0, 0xFF, 0xE1, 0xFF,
+    0xE3, 0xFF, 0xE7, 0x83, 0xEF, 0x03, 0xDE, 0x07, 0xFC, 0x07, 0xF8, 0x0F,
+    0xF0, 0x1F, 0xE0, 0x3F, 0xC0, 0x7F, 0x80, 0xFF, 0x03, 0xFE, 0x07, 0xBC,
+    0x1F, 0x7F, 0xFC, 0xFF, 0xF1, 0xFF, 0x80, 0xFF, 0xF7, 0xFF, 0xBF, 0xFD,
+    0xE0, 0x0F, 0x00, 0x78, 0x03, 0xC0, 0x1F, 0xFC, 0xFF, 0xE7, 0xFF, 0x3C,
+    0x01, 0xE0, 0x0F, 0x00, 0x78, 0x03, 0xC0, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xC0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0xF0, 0x0F, 0x00, 0xF0, 0x0F,
+    0xFE, 0xFF, 0xEF, 0xFE, 0xF0, 0x0F, 0x00, 0xF0, 0x0F, 0x00, 0xF0, 0x0F,
+    0x00, 0xF0, 0x0F, 0x00, 0x03, 0xF0, 0x0F, 0xFC, 0x3F, 0xFE, 0x3E, 0x1F,
+    0x78, 0x07, 0x78, 0x00, 0xF0, 0x00, 0xF0, 0x00, 0xF0, 0x7F, 0xF0, 0x7F,
+    0xF0, 0x7F, 0xF0, 0x07, 0x78, 0x07, 0x7C, 0x0F, 0x3E, 0x1F, 0x3F, 0xFB,
+    0x0F, 0xFB, 0x03, 0xE3, 0xF0, 0x3F, 0xC0, 0xFF, 0x03, 0xFC, 0x0F, 0xF0,
+    0x3F, 0xC0, 0xFF, 0x03, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x03, 0xFC,
+    0x0F, 0xF0, 0x3F, 0xC0, 0xFF, 0x03, 0xFC, 0x0F, 0xF0, 0x3F, 0xC0, 0xF0,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0xE0, 0x3C,
+    0x07, 0x80, 0xF0, 0x1E, 0x03, 0xC0, 0x78, 0x0F, 0x01, 0xE0, 0x3C, 0x07,
+    0xF8, 0xFF, 0x1F, 0xE3, 0xFC, 0x7B, 0xFE, 0x7F, 0xC3, 0xE0, 0xF0, 0x3E,
+    0xF0, 0x3C, 0xF0, 0x78, 0xF0, 0xF0, 0xF1, 0xE0, 0xF3, 0xC0, 0xF7, 0x80,
+    0xFF, 0x00, 0xFF, 0x80, 0xFF, 0x80, 0xFB, 0xC0, 0xF1, 0xE0, 0xF0, 0xF0,
+    0xF0, 0xF0, 0xF0, 0x78, 0xF0, 0x3C, 0xF0, 0x3E, 0xF0, 0x1E, 0xF0, 0x1E,
+    0x03, 0xC0, 0x78, 0x0F, 0x01, 0xE0, 0x3C, 0x07, 0x80, 0xF0, 0x1E, 0x03,
+    0xC0, 0x78, 0x0F, 0x01, 0xE0, 0x3C, 0x07, 0xFF, 0xFF, 0xFF, 0xFC, 0xF8,
+    0x1F, 0xFE, 0x0F, 0xFF, 0x0F, 0xFF, 0x87, 0xFF, 0xC3, 0xFF, 0xE1, 0xFF,
+    0xF9, 0xFF, 0xFC, 0xEF, 0xFE, 0x77, 0xFB, 0x3B, 0xFD, 0xDD, 0xFE, 0xFC,
+    0xFF, 0x7E, 0x7F, 0x9F, 0x3F, 0xCF, 0x9F, 0xE7, 0x8F, 0xF3, 0xC7, 0xF8,
+    0xE3, 0xC0, 0xF0, 0x1F, 0xF0, 0x3F, 0xF0, 0x7F, 0xE0, 0xFF, 0xE1, 0xFF,
+    0xC3, 0xFD, 0xC7, 0xFB, 0x8F, 0xF3, 0x9F, 0xE7, 0x3F, 0xC7, 0x7F, 0x8F,
+    0xFF, 0x0F, 0xFE, 0x1F, 0xFC, 0x1F, 0xF8, 0x1F, 0xF0, 0x3F, 0xE0, 0x3C,
+    0x03, 0xE0, 0x0F, 0xFC, 0x0F, 0xFF, 0x87, 0xC7, 0xC7, 0x80, 0xF3, 0xC0,
+    0x7B, 0xC0, 0x1F, 0xE0, 0x0F, 0xF0, 0x07, 0xF8, 0x03, 0xFC, 0x01, 0xFE,
+    0x00, 0xF7, 0x80, 0xF3, 0xC0, 0x78, 0xF0, 0xF8, 0x7F, 0xFC, 0x1F, 0xFC,
+    0x03, 0xF8, 0x00, 0xFF, 0xE3, 0xFF, 0xEF, 0xFF, 0xBC, 0x1F, 0xF0, 0x3F,
+    0xC0, 0xFF, 0x03, 0xFC, 0x1F, 0xFF, 0xFB, 0xFF, 0xCF, 0xFE, 0x3C, 0x00,
+    0xF0, 0x03, 0xC0, 0x0F, 0x00, 0x3C, 0x00, 0xF0, 0x03, 0xC0, 0x00, 0x03,
+    0xE0, 0x0F, 0xFC, 0x0F, 0xFF, 0x87, 0xC7, 0xC7, 0x80, 0xF3, 0xC0, 0x7B,
+    0xC0, 0x1F, 0xE0, 0x0F, 0xF0, 0x07, 0xF8, 0x03, 0xFC, 0x01, 0xFE, 0x04,
+    0xF7, 0x87, 0xF3, 0xC3, 0xF8, 0xF0, 0xF8, 0x7F, 0xFC, 0x1F, 0xFF, 0x83,
+    0xF1, 0x80, 0x00, 0x00, 0xFF, 0xF8, 0xFF, 0xFC, 0xFF, 0xFC, 0xF0, 0x3E,
+    0xF0, 0x1E, 0xF0, 0x1E, 0xF0, 0x1E, 0xF0, 0x3C, 0xFF, 0xF8, 0xFF, 0xF0,
+    0xFF, 0xF8, 0xF0, 0x3C, 0xF0, 0x3C, 0xF0, 0x3C, 0xF0, 0x3C, 0xF0, 0x3C,
+    0xF0, 0x3C, 0xF0, 0x1F, 0x0F, 0xC0, 0x7F, 0xE1, 0xFF, 0xE7, 0xC3, 0xEF,
+    0x03, 0xDE, 0x00, 0x3C, 0x00, 0x7F, 0x00, 0x7F, 0xF0, 0x3F, 0xF8, 0x0F,
+    0xF8, 0x01, 0xF0, 0x01, 0xFE, 0x03, 0xDE, 0x0F, 0xBF, 0xFE, 0x3F, 0xF8,
+    0x1F, 0xC0, 0xFF, 0xFF, 0xFF, 0xFF, 0xF0, 0xF0, 0x0F, 0x00, 0xF0, 0x0F,
+    0x00, 0xF0, 0x0F, 0x00, 0xF0, 0x0F, 0x00, 0xF0, 0x0F, 0x00, 0xF0, 0x0F,
+    0x00, 0xF0, 0x0F, 0x00, 0xF0, 0xF0, 0x3F, 0xC0, 0xFF, 0x03, 0xFC, 0x0F,
+    0xF0, 0x3F, 0xC0, 0xFF, 0x03, 0xFC, 0x0F, 0xF0, 0x3F, 0xC0, 0xFF, 0x03,
+    0xFC, 0x0F, 0xF0, 0x3F, 0xC0, 0xF7, 0x87, 0x9F, 0xFE, 0x3F, 0xF0, 0x3F,
+    0x00, 0x70, 0x0E, 0xF0, 0x3D, 0xE0, 0x79, 0xC0, 0xE3, 0x81, 0xC7, 0x87,
+    0x87, 0x0E, 0x0E, 0x1C, 0x1E, 0x78, 0x1C, 0xE0, 0x39, 0xC0, 0x73, 0x80,
+    0x7E, 0x00, 0xFC, 0x01, 0xF8, 0x01, 0xE0, 0x03, 0xC0, 0x07, 0x80, 0x70,
+    0x38, 0x1C, 0xE0, 0xF0, 0x79, 0xE1, 0xF0, 0xF3, 0xC3, 0xE1, 0xE3, 0x87,
+    0xC3, 0x87, 0x0F, 0x87, 0x0E, 0x3B, 0x9E, 0x1E, 0x77, 0x38, 0x1C, 0xEE,
+    0x70, 0x39, 0xCC, 0xE0, 0x73, 0x99, 0xC0, 0x6E, 0x3F, 0x00, 0xFC, 0x7E,
+    0x01, 0xF8, 0xFC, 0x03, 0xF0, 0xF8, 0x03, 0xE1, 0xE0, 0x07, 0x83, 0xC0,
+    0x0F, 0x07, 0x80, 0xF0, 0x3C, 0xF0, 0xF9, 0xE1, 0xE1, 0xE7, 0x83, 0xCF,
+    0x03, 0xFC, 0x03, 0xF0, 0x07, 0xE0, 0x07, 0x80, 0x0F, 0x00, 0x3F, 0x00,
+    0xFF, 0x01, 0xFE, 0x07, 0x9E, 0x0F, 0x1E, 0x3C, 0x3C, 0xF8, 0x3D, 0xE0,
+    0x78, 0xF0, 0x1E, 0x78, 0x1E, 0x78, 0x3C, 0x3C, 0x3C, 0x3C, 0x78, 0x1E,
+    0x78, 0x0E, 0x70, 0x0F, 0xF0, 0x07, 0xE0, 0x07, 0xE0, 0x03, 0xC0, 0x03,
+    0xC0, 0x03, 0xC0, 0x03, 0xC0, 0x03, 0xC0, 0x03, 0xC0, 0x03, 0xC0, 0x03,
+    0xC0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0x01, 0xF0, 0x0F, 0x00, 0xF0, 0x0F,
+    0x00, 0xF8, 0x07, 0x80, 0x78, 0x07, 0x80, 0x7C, 0x03, 0xC0, 0x3C, 0x03,
+    0xC0, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF, 0xC0, 0xFF, 0xFF, 0xFC, 0xF3, 0xCF,
+    0x3C, 0xF3, 0xCF, 0x3C, 0xF3, 0xCF, 0x3C, 0xF3, 0xCF, 0x3C, 0xFF, 0xFF,
+    0xC0, 0xC1, 0x81, 0x03, 0x06, 0x04, 0x0C, 0x18, 0x10, 0x30, 0x60, 0x40,
+    0xC1, 0x81, 0x03, 0x06, 0xFF, 0xFF, 0xCF, 0x3C, 0xF3, 0xCF, 0x3C, 0xF3,
+    0xCF, 0x3C, 0xF3, 0xCF, 0x3C, 0xF3, 0xCF, 0xFF, 0xFF, 0xC0, 0x0F, 0x00,
+    0xF0, 0x0F, 0x01, 0xF8, 0x1B, 0x83, 0x9C, 0x39, 0xC3, 0x0C, 0x70, 0xE7,
+    0x0E, 0xE0, 0x70, 0xFF, 0xFF, 0xFF, 0xFC, 0xE6, 0x30, 0x1F, 0x83, 0xFF,
+    0x1F, 0xFD, 0xE1, 0xE0, 0x0F, 0x03, 0xF9, 0xFF, 0xDF, 0x1E, 0xF0, 0xF7,
+    0x8F, 0xBF, 0xFC, 0xFF, 0xE3, 0xCF, 0x80, 0xF0, 0x07, 0x80, 0x3C, 0x01,
+    0xE0, 0x0F, 0x00, 0x7B, 0xC3, 0xFF, 0x9F, 0xFE, 0xF8, 0xF7, 0x83, 0xFC,
+    0x1F, 0xE0, 0xFF, 0x07, 0xF8, 0x3F, 0xE3, 0xDF, 0xFE, 0xFF, 0xE7, 0xBE,
+    0x00, 0x0F, 0x83, 0xFE, 0x7F, 0xF7, 0x8F, 0xF0, 0x7F, 0x00, 0xF0, 0x0F,
+    0x00, 0xF0, 0x77, 0x8F, 0x7F, 0xF3, 0xFE, 0x0F, 0x80, 0x00, 0x78, 0x03,
+    0xC0, 0x1E, 0x00, 0xF0, 0x07, 0x8F, 0xBC, 0xFF, 0xEF, 0xFF, 0x78, 0xFF,
+    0x83, 0xFC, 0x1F, 0xE0, 0xFF, 0x07, 0xF8, 0x3D, 0xE3, 0xEF, 0xFF, 0x3F,
+    0xF8, 0xFB, 0xC0, 0x1F, 0x81, 0xFE, 0x1F, 0xF9, 0xF1, 0xCF, 0x07, 0x7F,
+    0xFB, 0xFF, 0xDE, 0x00, 0xF0, 0x03, 0xC3, 0x9F, 0xFC, 0x7F, 0xC0, 0xF8,
+    0x00, 0x3E, 0xFD, 0xFB, 0xC7, 0x9F, 0xBF, 0x3C, 0x78, 0xF1, 0xE3, 0xC7,
+    0x8F, 0x1E, 0x3C, 0x78, 0xF0, 0x1E, 0x79, 0xFB, 0xDF, 0xFE, 0xF1, 0xFF,
+    0x07, 0xF8, 0x3F, 0xC1, 0xFE, 0x0F, 0xF0, 0x7F, 0xC7, 0xDF, 0xFE, 0x7F,
+    0xF1, 0xF7, 0x80, 0x3C, 0x01, 0xFF, 0x1E, 0x7F, 0xF0, 0xFE, 0x00, 0xF0,
+    0x0F, 0x00, 0xF0, 0x0F, 0x00, 0xF0, 0x0F, 0x7C, 0xFF, 0xEF, 0xFF, 0xF9,
+    0xFF, 0x0F, 0xF0, 0xFF, 0x0F, 0xF0, 0xFF, 0x0F, 0xF0, 0xFF, 0x0F, 0xF0,
+    0xFF, 0x0F, 0xFF, 0xF0, 0x0F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x3C,
+    0xF3, 0xC0, 0x00, 0xF3, 0xCF, 0x3C, 0xF3, 0xCF, 0x3C, 0xF3, 0xCF, 0x3C,
+    0xF3, 0xCF, 0xFF, 0xFF, 0x80, 0xF0, 0x0F, 0x00, 0xF0, 0x0F, 0x00, 0xF0,
+    0x0F, 0x0F, 0xF1, 0xEF, 0x3C, 0xF7, 0x8F, 0xF0, 0xFF, 0x0F, 0xF8, 0xFF,
+    0x8F, 0x3C, 0xF1, 0xCF, 0x1E, 0xF0, 0xEF, 0x0F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF7, 0x8F, 0x9F, 0xFB, 0xFB, 0xFF, 0xFF,
+    0xFC, 0xF8, 0xFF, 0x1E, 0x1F, 0xE3, 0xC3, 0xFC, 0x78, 0x7F, 0x8F, 0x0F,
+    0xF1, 0xE1, 0xFE, 0x3C, 0x3F, 0xC7, 0x87, 0xF8, 0xF0, 0xFF, 0x1E, 0x1E,
+    0xF7, 0xCF, 0xFE, 0xFF, 0xFF, 0x9F, 0xF0, 0xFF, 0x0F, 0xF0, 0xFF, 0x0F,
+    0xF0, 0xFF, 0x0F, 0xF0, 0xFF, 0x0F, 0xF0, 0xF0, 0x0F, 0x81, 0xFF, 0x1F,
+    0xFC, 0xF1, 0xEF, 0x07, 0xF8, 0x3F, 0xC1, 0xFE, 0x0F, 0xF0, 0x7B, 0xC7,
+    0x9F, 0xFC, 0x7F, 0xC0, 0xF8, 0x00, 0xF7, 0xC7, 0xFF, 0x3F, 0xFD, 0xF1,
+    0xEF, 0x07, 0xF8, 0x3F, 0xC1, 0xFE, 0x0F, 0xF0, 0x7F, 0xC7, 0xBF, 0xFD,
+    0xFF, 0xCF, 0x78, 0x78, 0x03, 0xC0, 0x1E, 0x00, 0xF0, 0x07, 0x80, 0x00,
+    0x0F, 0x79, 0xFF, 0xDF, 0xFE, 0xF1, 0xFF, 0x07, 0xF8, 0x3F, 0xC1, 0xFE,
+    0x0F, 0xF0, 0x7B, 0xC7, 0xDF, 0xFE, 0x7F, 0xF1, 0xF7, 0x80, 0x3C, 0x01,
+    0xE0, 0x0F, 0x00, 0x78, 0x03, 0xC0, 0xF3, 0xF7, 0xFF, 0xF8, 0xF0, 0xF0,
+    0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0x1F, 0x87, 0xFC, 0xFF, 0xEF,
+    0x0F, 0xF8, 0x0F, 0xF0, 0x7F, 0xE0, 0xFF, 0x01, 0xFF, 0x0F, 0xFF, 0xE7,
+    0xFE, 0x1F, 0x80, 0x79, 0xE7, 0xBF, 0xFD, 0xE7, 0x9E, 0x79, 0xE7, 0x9E,
+    0x7D, 0xF3, 0xC0, 0xF0, 0xFF, 0x0F, 0xF0, 0xFF, 0x0F, 0xF0, 0xFF, 0x0F,
+    0xF0, 0xFF, 0x0F, 0xF0, 0xFF, 0x1F, 0xFF, 0xF7, 0xFF, 0x3E, 0xF0, 0xF0,
+    0x7B, 0x83, 0x9E, 0x1C, 0xF1, 0xE3, 0x8E, 0x1C, 0x70, 0x77, 0x83, 0xB8,
+    0x1D, 0xC0, 0x7E, 0x03, 0xE0, 0x1F, 0x00, 0x70, 0x00, 0xF0, 0xE1, 0xDC,
+    0x78, 0x77, 0x1F, 0x3D, 0xE7, 0xCF, 0x79, 0xB3, 0x8E, 0x6C, 0xE3, 0xBB,
+    0x38, 0xEE, 0xFC, 0x1F, 0x3F, 0x07, 0xC7, 0xC1, 0xF1, 0xF0, 0x7C, 0x78,
+    0x0E, 0x1E, 0x00, 0x78, 0xF3, 0xC7, 0x8F, 0x78, 0x3B, 0x81, 0xFC, 0x07,
+    0xC0, 0x1E, 0x01, 0xF0, 0x1F, 0xC0, 0xEF, 0x0F, 0x78, 0xF1, 0xE7, 0x87,
+    0x00, 0xF0, 0x7B, 0x83, 0x9E, 0x1C, 0x71, 0xE3, 0x8E, 0x1E, 0x70, 0x73,
+    0x83, 0xB8, 0x1F, 0xC0, 0x7E, 0x03, 0xE0, 0x0F, 0x00, 0x70, 0x03, 0x80,
+    0x3C, 0x07, 0xC0, 0x3E, 0x01, 0xE0, 0x00, 0xFF, 0xFF, 0xFF, 0xFC, 0x0F,
+    0x07, 0x83, 0xC1, 0xE0, 0xF0, 0x78, 0x3C, 0x0F, 0xFF, 0xFF, 0xFF, 0xC0,
+    0x1C, 0xF3, 0xCE, 0x38, 0xE3, 0x8E, 0x38, 0xE3, 0xBC, 0xF0, 0xE3, 0x8E,
+    0x38, 0xE3, 0x8E, 0x3C, 0xF1, 0xC0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF0,
+    0xE3, 0x8F, 0x1C, 0x71, 0xC7, 0x1C, 0x71, 0xC7, 0x0F, 0x3D, 0xC7, 0x1C,
+    0x71, 0xC7, 0x1C, 0xF3, 0xCE, 0x00, 0x78, 0x0F, 0xE0, 0xCF, 0x30, 0x7F,
+    0x01, 0xE0};
+
+const GFXglyph FreeSansBold12pt7bGlyphs[] PROGMEM = {
+    {0, 0, 0, 7, 0, 1},         // 0x20 ' '
+    {0, 4, 17, 8, 3, -16},      // 0x21 '!'
+    {9, 10, 6, 11, 1, -17},     // 0x22 '"'
+    {17, 13, 16, 13, 0, -15},   // 0x23 '#'
+    {43, 13, 20, 13, 0, -17},   // 0x24 '$'
+    {76, 19, 17, 21, 1, -16},   // 0x25 '%'
+    {117, 16, 17, 17, 1, -16},  // 0x26 '&'
+    {151, 4, 6, 6, 1, -17},     // 0x27 '''
+    {154, 6, 22, 8, 1, -17},    // 0x28 '('
+    {171, 6, 22, 8, 1, -17},    // 0x29 ')'
+    {188, 7, 8, 9, 1, -17},     // 0x2A '*'
+    {195, 11, 11, 14, 2, -10},  // 0x2B '+'
+    {211, 4, 7, 6, 1, -2},      // 0x2C ','
+    {215, 6, 3, 8, 1, -7},      // 0x2D '-'
+    {218, 4, 3, 6, 1, -2},      // 0x2E '.'
+    {220, 6, 17, 7, 0, -16},    // 0x2F '/'
+    {233, 12, 17, 13, 1, -16},  // 0x30 '0'
+    {259, 7, 17, 14, 3, -16},   // 0x31 '1'
+    {274, 12, 17, 13, 1, -16},  // 0x32 '2'
+    {300, 12, 17, 13, 1, -16},  // 0x33 '3'
+    {326, 11, 17, 13, 1, -16},  // 0x34 '4'
+    {350, 12, 17, 13, 1, -16},  // 0x35 '5'
+    {376, 12, 17, 13, 1, -16},  // 0x36 '6'
+    {402, 11, 17, 13, 1, -16},  // 0x37 '7'
+    {426, 12, 17, 13, 1, -16},  // 0x38 '8'
+    {452, 12, 17, 13, 1, -16},  // 0x39 '9'
+    {478, 4, 12, 6, 1, -11},    // 0x3A ':'
+    {484, 4, 16, 6, 1, -11},    // 0x3B ';'
+    {492, 12, 12, 14, 1, -11},  // 0x3C '<'
+    {510, 12, 9, 14, 1, -9},    // 0x3D '='
+    {524, 12, 12, 14, 1, -11},  // 0x3E '>'
+    {542, 12, 18, 15, 2, -17},  // 0x3F '?'
+    {569, 21, 21, 23, 1, -17},  // 0x40 '@'
+    {625, 16, 18, 17, 0, -17},  // 0x41 'A'
+    {661, 14, 18, 17, 2, -17},  // 0x42 'B'
+    {693, 16, 18, 17, 1, -17},  // 0x43 'C'
+    {729, 15, 18, 17, 2, -17},  // 0x44 'D'
+    {763, 13, 18, 16, 2, -17},  // 0x45 'E'
+    {793, 12, 18, 15, 2, -17},  // 0x46 'F'
+    {820, 16, 18, 18, 1, -17},  // 0x47 'G'
+    {856, 14, 18, 18, 2, -17},  // 0x48 'H'
+    {888, 4, 18, 7, 2, -17},    // 0x49 'I'
+    {897, 11, 18, 14, 1, -17},  // 0x4A 'J'
+    {922, 16, 18, 17, 2, -17},  // 0x4B 'K'
+    {958, 11, 18, 15, 2, -17},  // 0x4C 'L'
+    {983, 17, 18, 21, 2, -17},  // 0x4D 'M'
+    {1022, 15, 18, 18, 2, -17}, // 0x4E 'N'
+    {1056, 17, 18, 19, 1, -17}, // 0x4F 'O'
+    {1095, 14, 18, 16, 2, -17}, // 0x50 'P'
+    {1127, 17, 19, 19, 1, -17}, // 0x51 'Q'
+    {1168, 16, 18, 17, 2, -17}, // 0x52 'R'
+    {1204, 15, 18, 16, 1, -17}, // 0x53 'S'
+    {1238, 12, 18, 15, 2, -17}, // 0x54 'T'
+    {1265, 14, 18, 18, 2, -17}, // 0x55 'U'
+    {1297, 15, 18, 16, 0, -17}, // 0x56 'V'
+    {1331, 23, 18, 23, 0, -17}, // 0x57 'W'
+    {1383, 15, 18, 16, 1, -17}, // 0x58 'X'
+    {1417, 16, 18, 15, 0, -17}, // 0x59 'Y'
+    {1453, 13, 18, 15, 1, -17}, // 0x5A 'Z'
+    {1483, 6, 23, 8, 2, -17},   // 0x5B '['
+    {1501, 7, 17, 7, 0, -16},   // 0x5C '\'
+    {1516, 6, 23, 8, 0, -17},   // 0x5D ']'
+    {1534, 12, 11, 14, 1, -16}, // 0x5E '^'
+    {1551, 15, 2, 13, -1, 4},   // 0x5F '_'
+    {1555, 4, 3, 6, 0, -17},    // 0x60 '`'
+    {1557, 13, 13, 14, 1, -12}, // 0x61 'a'
+    {1579, 13, 18, 15, 2, -17}, // 0x62 'b'
+    {1609, 12, 13, 13, 1, -12}, // 0x63 'c'
+    {1629, 13, 18, 15, 1, -17}, // 0x64 'd'
+    {1659, 13, 13, 14, 1, -12}, // 0x65 'e'
+    {1681, 7, 18, 8, 1, -17},   // 0x66 'f'
+    {1697, 13, 18, 15, 1, -12}, // 0x67 'g'
+    {1727, 12, 18, 14, 2, -17}, // 0x68 'h'
+    {1754, 4, 18, 7, 2, -17},   // 0x69 'i'
+    {1763, 6, 23, 7, 0, -17},   // 0x6A 'j'
+    {1781, 12, 18, 14, 2, -17}, // 0x6B 'k'
+    {1808, 4, 18, 6, 2, -17},   // 0x6C 'l'
+    {1817, 19, 13, 21, 2, -12}, // 0x6D 'm'
+    {1848, 12, 13, 15, 2, -12}, // 0x6E 'n'
+    {1868, 13, 13, 15, 1, -12}, // 0x6F 'o'
+    {1890, 13, 18, 15, 2, -12}, // 0x70 'p'
+    {1920, 13, 18, 15, 1, -12}, // 0x71 'q'
+    {1950, 8, 13, 9, 2, -12},   // 0x72 'r'
+    {1963, 12, 13, 13, 1, -12}, // 0x73 's'
+    {1983, 6, 15, 8, 1, -14},   // 0x74 't'
+    {1995, 12, 13, 15, 2, -12}, // 0x75 'u'
+    {2015, 13, 13, 13, 0, -12}, // 0x76 'v'
+    {2037, 18, 13, 19, 0, -12}, // 0x77 'w'
+    {2067, 13, 13, 13, 0, -12}, // 0x78 'x'
+    {2089, 13, 18, 13, 0, -12}, // 0x79 'y'
+    {2119, 10, 13, 12, 1, -12}, // 0x7A 'z'
+    {2136, 6, 23, 9, 1, -17},   // 0x7B '{'
+    {2154, 2, 22, 7, 2, -17},   // 0x7C '|'
+    {2160, 6, 23, 9, 3, -17},   // 0x7D '}'
+    {2178, 12, 5, 12, 0, -7}};  // 0x7E '~'
+
+const GFXfont FreeSansBold12pt7b PROGMEM = {
+    (uint8_t *)FreeSansBold12pt7bBitmaps, (GFXglyph *)FreeSansBold12pt7bGlyphs,
+    0x20, 0x7E, 29};
+
+// Approx. 2858 bytes
+#endif
+
 // ====== COLOR DEFINITIONS (RGB565) ======
 #ifndef BLACK
 #define BLACK   0x0000
@@ -80,7 +583,8 @@ Arduino_DataBus *bus = new Arduino_ESP32LCD8(
   TFT_DC, TFT_CS, TFT_WR, -1,
   TFT_D0, TFT_D1, TFT_D2, TFT_D3, TFT_D4, TFT_D5, TFT_D6, TFT_D7
 );
-Arduino_GFX *gfx = new Arduino_GC9A01(bus, TFT_RST, 0, true);
+Arduino_GFX *output_display = new Arduino_GC9A01(bus, TFT_RST, 0, true);
+Arduino_Canvas *gfx = new Arduino_Canvas(SCREEN_W, SCREEN_H, output_display);
 
 // ====== BLE CONFIG ======
 #define SERVICE_UUID        "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
@@ -99,13 +603,26 @@ unsigned long lastSlideSwitch = 0;
 const unsigned long SLIDE_AUTO_SWITCH_MS = 8000;
 bool autoSlideEnabled = false;
 
-// ====== TOUCH STATE ======
+// ====== RAW COORDINATE TOUCH SYSTEM ======
+// Ignores CST816 gesture register entirely. Tracks raw X/Y coordinates
+// and classifies gestures from the coordinate stream on finger lift.
 bool touchInitialized = false;
-bool gestureActive = false;        // True from gesture detection until finger fully lifted
-unsigned long gestureLockedUntil = 0; // Hard lock: ignore everything until this time
+enum TouchState { TS_IDLE, TS_DOWN, TS_COOLDOWN };
+TouchState touchState = TS_IDLE;
+unsigned long touchCooldownEnd = 0;
+int touchStartX = 0, touchStartY = 0;
+int touchLastX = 0, touchLastY = 0;
+unsigned long touchStartTime = 0;
+
+#define TOUCH_COOLDOWN_MS  300   // Cooldown after processing a gesture
+#define SWIPE_MIN_DIST     30    // Min px movement to count as swipe
+#define TAP_MAX_DIST       25    // Max px movement to count as tap
+#define TAP_MAX_TIME       400   // Max ms for a tap
+#define TOUCH_MIN_FRAMES   2     // Require 2+ frames of contact to filter noise
+int touchFrameCount = 0;          // Frames of continuous contact
 
 // ====== CLOCK MODE ======
-bool analogClock = false;  // false = digital, true = analog
+bool analogClock = false;
 
 // ====== TIME DATA ======
 int hours = 0;
@@ -114,14 +631,13 @@ int seconds = 0;
 bool timeInitialized = false;
 unsigned long lastSecondMillis = 0;
 
-// Timezone configuration (Central European Time)
-const int TIMEZONE_OFFSET = 1;  // CET = UTC+1
-const int DST_OFFSET = 2;       // CEST = UTC+2
+const int TIMEZONE_OFFSET = 1;
+const int DST_OFFSET = 2;
 
 // ====== MUSIC DATA ======
 String musicTitle = "";
 String musicArtist = "";
-String musicState = "STOPPED"; // PLAYING, PAUSED, STOPPED
+String musicState = "STOPPED";
 bool musicDataReceived = false;
 
 // ====== NAVIGATION DATA ======
@@ -131,20 +647,36 @@ float navDirection = 0;
 String navInstruction = "";
 bool navDataReceived = false;
 
-// ====== COLORS ======
-#define COLOR_BG        BLACK
-#define COLOR_TIME      0x07E0  // Green
-#define COLOR_TIME_SEC  0x0400  // Dark green
-#define COLOR_MUSIC_BG  BLACK
-#define COLOR_MUSIC_TITLE  WHITE
-#define COLOR_MUSIC_ARTIST 0x07FF // Cyan
-#define COLOR_MUSIC_ICON   0x07E0 // Green
-#define COLOR_NAV_BG    BLACK
-#define COLOR_NAV_DIST  WHITE
-#define COLOR_NAV_ARROW 0x001F  // Blue
-#define COLOR_NAV_INST  0xFFE0  // Yellow
-#define COLOR_INDICATOR 0x4208  // Dim gray
-#define COLOR_INDICATOR_ACTIVE WHITE
+// ====== UI COLORS ======
+#define COLOR_BG              BLACK
+#define COLOR_DIGIT           0x07E0
+#define COLOR_DIGIT_DIM       0x0120
+#define COLOR_SEC_ACTIVE      0x0400
+#define COLOR_SEC_DIM         0x18C3
+#define COLOR_MUSIC_BG        BLACK
+#define COLOR_MUSIC_TITLE     WHITE
+#define COLOR_MUSIC_ARTIST    0x07FF
+#define COLOR_MUSIC_ICON      0x07E0
+#define COLOR_MUSIC_CTRL_BG   0x18C3
+#define COLOR_NAV_BG          BLACK
+#define COLOR_NAV_DIST        WHITE
+#define COLOR_NAV_ARROW       0x03BF
+#define COLOR_NAV_ARROW_EDGE  0x001F
+#define COLOR_NAV_INST        0xFFE0
+#define COLOR_WATCH_BEZEL     0xC618
+#define COLOR_WATCH_BEZEL_IN  0x8410
+#define COLOR_WATCH_MARKER    WHITE
+#define COLOR_WATCH_TICK      0x7BEF
+#define COLOR_WATCH_HOUR      WHITE
+#define COLOR_WATCH_MIN       0xDEFB
+#define COLOR_WATCH_SEC       0xF800
+#define COLOR_INDICATOR       0x4208
+#define COLOR_INDICATOR_ACT   WHITE
+
+// 7-segment digit encoding: bits [6..0] = A B C D E F G
+static const uint8_t DIGIT_SEG[10] = {
+  0x7E, 0x30, 0x6D, 0x79, 0x33, 0x5B, 0x5F, 0x70, 0x7F, 0x7B
+};
 
 // ====== FUNCTION DECLARATIONS ======
 void processData(String msg);
@@ -154,18 +686,25 @@ void drawMusicSlide();
 void drawNavSlide();
 void drawSlideIndicators();
 void drawCenteredText(const char* text, int y, int size, uint16_t color);
-void drawWrappedText(const char* text, int y, int maxWidth, int size, uint16_t color);
+void drawTextFont(const char* text, int centerY, bool large, uint16_t color);
+void drawWrappedTextFont(const char* text, int startY, int maxW, bool large, uint16_t color);
+void drawDigit(int x, int y, int d, int w, int h, int t, uint16_t onCol, uint16_t offCol);
+void drawColon(int cx, int cy, int dotR, uint16_t color);
+void drawSecondsRing(int cx, int cy, int radius, int sec);
+void drawAnalogClock();
+void drawTaperedHand(int cx, int cy, float angleDeg, int len, int baseW, uint16_t color);
+void drawNavArrow(int cx, int cy, float angleDeg, int size, uint16_t color);
 void drawPlayIcon(int cx, int cy, int size, uint16_t color);
 void drawPauseIcon(int cx, int cy, int size, uint16_t color);
 void drawNextIcon(int cx, int cy, int size, uint16_t color);
 void drawPrevIcon(int cx, int cy, int size, uint16_t color);
-void drawNavArrow(int cx, int cy, float angleDeg, int size, uint16_t color);
 void initializeTimeFromEpoch(unsigned long epochTime);
 void incrementTime();
 int calculateDayOfWeek(int y, int m, int d);
 bool isDST(int month, int day, int dayOfWeek, int hour);
 void touchInit();
 void handleTouch();
+void handleTouchAction(int startX, int startY, int endX, int endY, unsigned long duration);
 void handleMusicTap(int x, int y);
 void sendBleCommand(const char* cmd);
 
@@ -199,14 +738,12 @@ void touchInit() {
   Wire.setClock(400000);
   delay(10);
 
-  // Reset touch controller
   pinMode(TOUCH_RST, OUTPUT);
   digitalWrite(TOUCH_RST, LOW);
   delay(10);
   digitalWrite(TOUCH_RST, HIGH);
   delay(50);
 
-  // Read chip ID to verify touch controller is present
   Wire.beginTransmission(TOUCH_I2C_ADDR);
   Wire.write(CST816_CHIP_ID_REG);
   if (Wire.endTransmission(false) == 0) {
@@ -226,30 +763,26 @@ void touchInit() {
   }
 }
 
-// Read gesture + finger count + coordinates in one I2C transaction
-// Returns gesture code; fills fingerCount, x, y
 uint8_t touchReadAll(uint8_t &fingerCount, int &x, int &y) {
   if (!touchInitialized) { fingerCount = 0; return GESTURE_NONE; }
 
-  // Read registers 0x01 through 0x06 in one burst (6 bytes)
   Wire.beginTransmission(TOUCH_I2C_ADDR);
-  Wire.write(CST816_GESTURE_REG);  // start at 0x01
+  Wire.write(CST816_GESTURE_REG);
   if (Wire.endTransmission(false) != 0) { fingerCount = 0; return GESTURE_NONE; }
 
   Wire.requestFrom((int)TOUCH_I2C_ADDR, 6, 1);
   if (Wire.available() < 6) { fingerCount = 0; return GESTURE_NONE; }
 
-  uint8_t gesture = Wire.read();   // 0x01 gesture
-  fingerCount = Wire.read();       // 0x02 finger count
-  uint8_t xH = Wire.read();       // 0x03
-  uint8_t xL = Wire.read();       // 0x04
-  uint8_t yH = Wire.read();       // 0x05
-  uint8_t yL = Wire.read();       // 0x06
+  uint8_t gesture = Wire.read();
+  fingerCount = Wire.read();
+  uint8_t xH = Wire.read();
+  uint8_t xL = Wire.read();
+  uint8_t yH = Wire.read();
+  uint8_t yL = Wire.read();
 
   int rawX = ((xH & 0x0F) << 8) | xL;
   int rawY = ((yH & 0x0F) << 8) | yL;
 
-  // Match display orientation (flip X as in demo)
   x = 239 - rawX;
   if (x < 0) x = 0; if (x > 239) x = 239;
   y = rawY;
@@ -257,7 +790,6 @@ uint8_t touchReadAll(uint8_t &fingerCount, int &x, int &y) {
 
   return gesture;
 }
-
 
 void sendBleCommand(const char* cmd) {
   if (deviceConnected && pTxCharacteristic != nullptr) {
@@ -267,105 +799,148 @@ void sendBleCommand(const char* cmd) {
   }
 }
 
+// Music transport controls - only called for taps in the bottom half on music slide
 void handleMusicTap(int x, int y) {
   if (!musicDataReceived) return;
 
-  // Transport controls at y = SCREEN_H - 55 = 185
-  // Enlarged touch area for glove use (y > 130 instead of 155)
-  if (y < 130) return;
-
   Serial.printf("Music tap at (%d, %d)\n", x, y);
 
-  if (x < 80) {
-    // Previous track - wide left zone for gloves
+  if (x < 85) {
     sendBleCommand("MEDIA PREV");
     Serial.println("Touch: Previous track");
-    gfx->drawCircle(CENTER_X - 55, SCREEN_H - 55, 35, WHITE);
-  } else if (x > 160) {
-    // Next track - wide right zone for gloves
+  } else if (x > 155) {
     sendBleCommand("MEDIA NEXT");
     Serial.println("Touch: Next track");
-    gfx->drawCircle(CENTER_X + 55, SCREEN_H - 55, 35, WHITE);
   } else {
-    // Play/Pause toggle - center zone
     sendBleCommand("MEDIA TOGGLE");
     Serial.println("Touch: Play/Pause toggle");
-    gfx->drawCircle(CENTER_X, SCREEN_H - 55, 35, WHITE);
   }
 
-  delay(100);
   slideNeedsRedraw = true;
 }
 
+// ====== RAW COORDINATE TOUCH HANDLER ======
+// Completely ignores the CST816 gesture register.
+// Reads only fingerCount + X/Y, classifies gestures on finger lift.
+//
+// Logic:
+//  - Swipe (any direction with dx > SWIPE_MIN_DIST) -> next page
+//  - Tap top half (y < 120) -> next page
+//  - Tap bottom half (y >= 120):
+//      Music slide: prev/play-pause/next zones
+//      Time slide: toggle analog/digital clock
+//      Nav slide: (no action)
 void handleTouch() {
   if (!touchInitialized) return;
-
   unsigned long now = millis();
-
-  // HARD LOCK: After acting on any gesture, completely ignore ALL touch input
-  // for 1 second. This defeats the CST816 burst pattern where the chip
-  // rapidly alternates gesture/NONE/gesture/NONE for the entire touch duration.
-  if (now < gestureLockedUntil) return;
 
   uint8_t fingerCount = 0;
   int tx = 0, ty = 0;
-  uint8_t gesture = touchReadAll(fingerCount, tx, ty);
+  // Read registers but IGNORE the gesture byte
+  touchReadAll(fingerCount, tx, ty);
 
-  // If finger is on screen but we already handled this touch, skip
-  if (fingerCount > 0 && gestureActive) return;
+  bool touching = (fingerCount > 0);
 
-  // If finger is off screen, reset state for next touch
-  if (fingerCount == 0) {
-    gestureActive = false;
+  switch (touchState) {
+    case TS_COOLDOWN:
+      // Must wait for cooldown to expire AND finger to be off screen
+      if (now >= touchCooldownEnd && !touching) {
+        touchState = TS_IDLE;
+      }
+      break;
+
+    case TS_IDLE:
+      if (touching) {
+        touchState = TS_DOWN;
+        touchStartX = tx;
+        touchStartY = ty;
+        touchLastX = tx;
+        touchLastY = ty;
+        touchStartTime = now;
+        touchFrameCount = 1;
+      }
+      break;
+
+    case TS_DOWN:
+      if (touching) {
+        // Finger still on screen - keep tracking coordinates
+        touchLastX = tx;
+        touchLastY = ty;
+        touchFrameCount++;
+      } else {
+        // Finger lifted
+        if (touchFrameCount >= TOUCH_MIN_FRAMES) {
+          unsigned long duration = now - touchStartTime;
+          handleTouchAction(touchStartX, touchStartY, touchLastX, touchLastY, duration);
+        } else {
+          Serial.println("Touch: noise filtered (too few frames)");
+        }
+
+        touchState = TS_COOLDOWN;
+        touchCooldownEnd = now + TOUCH_COOLDOWN_MS;
+        touchFrameCount = 0;
+      }
+      break;
+  }
+}
+
+// Called once per touch cycle (on finger lift) with start/end coordinates
+void handleTouchAction(int startX, int startY, int endX, int endY, unsigned long duration) {
+  int dx = endX - startX;
+  int dy = endY - startY;
+  int absDx = abs(dx);
+  int absDy = abs(dy);
+  int dist = (int)sqrtf((float)(dx * dx + dy * dy));
+
+  Serial.printf("Touch: start(%d,%d) end(%d,%d) dist=%d dur=%lums\n",
+                startX, startY, endX, endY, dist, duration);
+
+  // === SWIPE DETECTION ===
+  // Any swipe with enough horizontal movement -> next page
+  if (dist >= SWIPE_MIN_DIST && absDx >= absDy) {
+    // Horizontal swipe detected -> always go to next page
+    currentSlide = (Slide)((currentSlide + 1) % SLIDE_COUNT);
+    slideNeedsRedraw = true;
+    lastSlideSwitch = millis();
+    Serial.printf("Swipe -> Next Slide (%d)\n", (int)currentSlide);
     return;
   }
 
-  // Finger is on screen, gesture not yet handled, and we have a gesture
-  if (gesture == GESTURE_NONE) return;
+  // Vertical swipe -> also next page (user said no need for prev)
+  if (dist >= SWIPE_MIN_DIST) {
+    currentSlide = (Slide)((currentSlide + 1) % SLIDE_COUNT);
+    slideNeedsRedraw = true;
+    lastSlideSwitch = millis();
+    Serial.printf("Swipe -> Next Slide (%d)\n", (int)currentSlide);
+    return;
+  }
 
-  // === ACT ON GESTURE EXACTLY ONCE ===
-  gestureActive = true;
-  gestureLockedUntil = now + 1000;  // Block everything for 1 full second
+  // === TAP DETECTION ===
+  if (dist < TAP_MAX_DIST && duration < TAP_MAX_TIME) {
+    int tapY = startY;  // Use start position (more reliable)
+    int tapX = startX;
 
-  Serial.printf("Gesture: 0x%02X  fingers:%d  xy:(%d,%d)\n", gesture, fingerCount, tx, ty);
+    Serial.printf("Tap at (%d,%d) on slide %d\n", tapX, tapY, (int)currentSlide);
 
-  switch (gesture) {
-    case GESTURE_SWIPE_LEFT:
-      currentSlide = (Slide)((currentSlide + SLIDE_COUNT - 1) % SLIDE_COUNT);
-      slideNeedsRedraw = true;
-      lastSlideSwitch = millis();
-      Serial.println("Touch: Swipe Left -> Prev Slide");
-      break;
-
-    case GESTURE_SWIPE_RIGHT:
+    if (tapY < 120) {
+      // --- TOP HALF TAP: always go to next page ---
       currentSlide = (Slide)((currentSlide + 1) % SLIDE_COUNT);
       slideNeedsRedraw = true;
       lastSlideSwitch = millis();
-      Serial.println("Touch: Swipe Right -> Next Slide");
-      break;
-
-    case GESTURE_SINGLE_TAP: {
-      Serial.printf("Tap at (%d, %d) on slide %d\n", tx, ty, (int)currentSlide);
+      Serial.printf("Top tap -> Next Slide (%d)\n", (int)currentSlide);
+    } else {
+      // --- BOTTOM HALF TAP: slide-specific action ---
       if (currentSlide == SLIDE_MUSIC) {
-        handleMusicTap(tx, ty);
+        handleMusicTap(tapX, tapY);
       } else if (currentSlide == SLIDE_TIME) {
         analogClock = !analogClock;
         slideNeedsRedraw = true;
         Serial.printf("Clock mode: %s\n", analogClock ? "analog" : "digital");
       }
-      break;
+      // Nav slide bottom tap: no action
     }
-
-    case GESTURE_SWIPE_UP:
-      Serial.println("Touch: Swipe Up");
-      break;
-
-    case GESTURE_SWIPE_DOWN:
-      Serial.println("Touch: Swipe Down");
-      break;
-
-    default:
-      break;
+  } else {
+    Serial.println("Touch: unclassified (not swipe, not tap)");
   }
 }
 
@@ -403,7 +978,6 @@ void initializeTimeFromEpoch(unsigned long epochTime) {
   int hoursUTC = totalSeconds % 24;
   unsigned long totalDays = totalSeconds / 24;
 
-  // Calculate date from days since epoch
   int year = 1970;
   int month, day;
 
@@ -466,7 +1040,6 @@ void processData(String msg) {
     }
   }
   else if (msg.startsWith("MUSIC ")) {
-    // Format: MUSIC state|title|artist
     String data = msg.substring(6);
     int sep1 = data.indexOf('|');
     int sep2 = data.indexOf('|', sep1 + 1);
@@ -481,7 +1054,6 @@ void processData(String msg) {
     }
   }
   else if (msg.startsWith("NAV ")) {
-    // Format: NAV distance|unit|direction|instruction
     String data = msg.substring(4);
     int sep1 = data.indexOf('|');
     int sep2 = data.indexOf('|', sep1 + 1);
@@ -503,7 +1075,6 @@ void processData(String msg) {
       currentSlide = (Slide)s;
       slideNeedsRedraw = true;
       lastSlideSwitch = millis();
-      Serial.printf("Switched to slide %d\n", s);
     }
   }
   else if (msg == "NEXT_SLIDE") {
@@ -525,7 +1096,10 @@ void processData(String msg) {
 }
 
 // ====== DRAWING HELPERS ======
+
+// Default font centered text (used for boot screen and fallback)
 void drawCenteredText(const char* text, int y, int size, uint16_t color) {
+  gfx->setFont(NULL);
   gfx->setTextSize(size);
   gfx->setTextColor(color);
   int16_t x1, y1;
@@ -535,128 +1109,412 @@ void drawCenteredText(const char* text, int y, int size, uint16_t color) {
   gfx->print(text);
 }
 
-// Draw text wrapped within maxWidth, centered horizontally
-void drawWrappedText(const char* text, int y, int maxWidth, int size, uint16_t color) {
-  gfx->setTextSize(size);
+// Centered text using FreeSans font (large=12pt, small=9pt)
+void drawTextFont(const char* text, int centerY, bool large, uint16_t color) {
+#if USE_CUSTOM_FONTS
+  const GFXfont* font = large ? &FreeSansBold12pt7b : &FreeSansBold9pt7b;
+  gfx->setFont(font);
+  gfx->setTextSize(1);
+  gfx->setTextColor(color);
+  int16_t x1, y1;
+  uint16_t w, h;
+  gfx->getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
+  gfx->setCursor((SCREEN_W - w) / 2 - x1, centerY - h / 2 - y1);
+  gfx->print(text);
+  gfx->setFont(NULL);
+#else
+  int size = large ? 2 : 1;
+  drawCenteredText(text, centerY - (large ? 8 : 4), size, color);
+#endif
+}
+
+// Wrapped text with FreeSans font, max 2 lines, centered
+void drawWrappedTextFont(const char* text, int startY, int maxW, bool large, uint16_t color) {
+#if USE_CUSTOM_FONTS
+  const GFXfont* font = large ? &FreeSansBold12pt7b : &FreeSansBold9pt7b;
+  gfx->setFont(font);
+  gfx->setTextSize(1);
   gfx->setTextColor(color);
 
+  int16_t x1, y1;
+  uint16_t tw, th;
+  gfx->getTextBounds("Ay", 0, 0, &x1, &y1, &tw, &th);
+  int lineH = th + 4;
+
   String str = String(text);
-  int charWidth = 6 * size; // Approximate character width
-  int maxChars = maxWidth / charWidth;
-  if (maxChars < 1) maxChars = 1;
+  int linesDrawn = 0;
+  int curY = startY;
 
-  int lineHeight = 8 * size + 4;
-  int currentY = y;
-
-  while (str.length() > 0) {
-    String line;
-    if ((int)str.length() <= maxChars) {
-      line = str;
-      str = "";
-    } else {
-      // Find last space within maxChars
-      int breakPoint = maxChars;
-      for (int i = maxChars; i >= 0; i--) {
-        if (str.charAt(i) == ' ') {
-          breakPoint = i;
-          break;
+  while (str.length() > 0 && linesDrawn < 2) {
+    gfx->getTextBounds(str.c_str(), 0, 0, &x1, &y1, &tw, &th);
+    if ((int)tw <= maxW || str.length() <= 1) {
+      // Fits on one line (or can't break further)
+      if (linesDrawn == 1 && (int)tw > maxW) {
+        // Second line overflow - truncate with ellipsis
+        while (str.length() > 1) {
+          str = str.substring(0, str.length() - 1);
+          String test = str + "..";
+          gfx->getTextBounds(test.c_str(), 0, 0, &x1, &y1, &tw, &th);
+          if ((int)tw <= maxW) { str = test; break; }
         }
       }
-      line = str.substring(0, breakPoint);
-      str = str.substring(breakPoint);
-      str.trim();
+      gfx->getTextBounds(str.c_str(), 0, 0, &x1, &y1, &tw, &th);
+      gfx->setCursor((SCREEN_W - tw) / 2 - x1, curY - y1);
+      gfx->print(str);
+      break;
     }
 
-    int16_t x1, y1;
-    uint16_t w, h;
-    gfx->getTextBounds(line.c_str(), 0, 0, &x1, &y1, &w, &h);
-    gfx->setCursor((SCREEN_W - w) / 2, currentY);
+    // Find break point
+    int bestBreak = str.length();
+    for (int i = str.length(); i > 0; i--) {
+      String sub = str.substring(0, i);
+      gfx->getTextBounds(sub.c_str(), 0, 0, &x1, &y1, &tw, &th);
+      if ((int)tw <= maxW) { bestBreak = i; break; }
+    }
+    // Prefer space break
+    int spaceBreak = bestBreak;
+    for (int i = bestBreak; i > 0; i--) {
+      if (str.charAt(i - 1) == ' ') { spaceBreak = i - 1; break; }
+    }
+    if (spaceBreak > 0 && spaceBreak < bestBreak) bestBreak = spaceBreak;
+
+    String line = str.substring(0, bestBreak);
+    line.trim();
+    gfx->getTextBounds(line.c_str(), 0, 0, &x1, &y1, &tw, &th);
+    gfx->setCursor((SCREEN_W - tw) / 2 - x1, curY - y1);
     gfx->print(line);
-    currentY += lineHeight;
+
+    str = str.substring(bestBreak);
+    str.trim();
+    curY += lineH;
+    linesDrawn++;
+  }
+
+  gfx->setFont(NULL);
+#else
+  // Fallback: use default font wrapped
+  gfx->setFont(NULL);
+  int size = large ? 2 : 1;
+  gfx->setTextSize(size);
+  gfx->setTextColor(color);
+  int charW = 6 * size;
+  int maxChars = maxW / charW;
+  if (maxChars < 1) maxChars = 1;
+  int lineH = 8 * size + 4;
+  String str = String(text);
+  int curY = startY;
+  int lines = 0;
+  while (str.length() > 0 && lines < 2) {
+    String line;
+    if ((int)str.length() <= maxChars) {
+      line = str; str = "";
+    } else {
+      int bp = maxChars;
+      for (int i = maxChars; i >= 0; i--) {
+        if (str.charAt(i) == ' ') { bp = i; break; }
+      }
+      line = str.substring(0, bp);
+      str = str.substring(bp); str.trim();
+    }
+    int16_t bx, by; uint16_t bw, bh;
+    gfx->getTextBounds(line.c_str(), 0, 0, &bx, &by, &bw, &bh);
+    gfx->setCursor((SCREEN_W - bw) / 2, curY);
+    gfx->print(line);
+    curY += lineH;
+    lines++;
+  }
+#endif
+}
+
+// ====== 7-SEGMENT DIGIT RENDERING ======
+// Draws a single digit using filled rounded rectangles for each segment.
+// Segments: A=top, B=top-right, C=bot-right, D=bot, E=bot-left, F=top-left, G=mid
+void drawDigit(int x, int y, int d, int w, int h, int t, uint16_t onCol, uint16_t offCol) {
+  if (d < 0 || d > 9) return;
+  uint8_t segs = DIGIT_SEG[d];
+  int r = t / 3;
+  if (r < 1) r = 1;
+  int halfH = h / 2;
+  uint16_t c;
+
+  // A - top horizontal
+  c = (segs & 0x40) ? onCol : offCol;
+  gfx->fillRoundRect(x + t + 1, y, w - 2 * t - 2, t, r, c);
+
+  // B - top right vertical
+  c = (segs & 0x20) ? onCol : offCol;
+  gfx->fillRoundRect(x + w - t, y + t + 1, t, halfH - t - 2, r, c);
+
+  // C - bottom right vertical
+  c = (segs & 0x10) ? onCol : offCol;
+  gfx->fillRoundRect(x + w - t, y + halfH + 1, t, halfH - t - 2, r, c);
+
+  // D - bottom horizontal
+  c = (segs & 0x08) ? onCol : offCol;
+  gfx->fillRoundRect(x + t + 1, y + h - t, w - 2 * t - 2, t, r, c);
+
+  // E - bottom left vertical
+  c = (segs & 0x04) ? onCol : offCol;
+  gfx->fillRoundRect(x, y + halfH + 1, t, halfH - t - 2, r, c);
+
+  // F - top left vertical
+  c = (segs & 0x02) ? onCol : offCol;
+  gfx->fillRoundRect(x, y + t + 1, t, halfH - t - 2, r, c);
+
+  // G - middle horizontal
+  c = (segs & 0x01) ? onCol : offCol;
+  gfx->fillRoundRect(x + t + 1, y + halfH - t / 2, w - 2 * t - 2, t, r, c);
+}
+
+void drawColon(int cx, int cy, int h, int dotR, uint16_t color) {
+  gfx->fillCircle(cx, cy - h / 6, dotR, color);
+  gfx->fillCircle(cx, cy + h / 6, dotR, color);
+}
+
+// Seconds ring around the clock face using small ticks
+void drawSecondsRing(int cx, int cy, int radius, int sec) {
+  for (int i = 0; i < 60; i++) {
+    float angle = i * 6.0f * PI / 180.0f;
+    float sinA = sinf(angle);
+    float cosA = cosf(angle);
+
+    bool isFive = (i % 5 == 0);
+    int innerR = isFive ? radius - 8 : radius - 4;
+    int outerR = radius;
+
+    int x1 = cx + (int)(sinA * innerR);
+    int y1 = cy - (int)(cosA * innerR);
+    int x2 = cx + (int)(sinA * outerR);
+    int y2 = cy - (int)(cosA * outerR);
+
+    uint16_t color;
+    if (i < sec) {
+      color = isFive ? COLOR_DIGIT : COLOR_SEC_ACTIVE;
+    } else if (i == sec) {
+      color = COLOR_DIGIT;  // Current second bright
+    } else {
+      color = COLOR_SEC_DIM;
+    }
+
+    gfx->drawLine(x1, y1, x2, y2, color);
+    if (isFive) {
+      // Thicken 5-second marks
+      int x1b = cx + (int)(sinA * innerR + cosA);
+      int y1b = cy - (int)(cosA * innerR - sinA);
+      int x2b = cx + (int)(sinA * outerR + cosA);
+      int y2b = cy - (int)(cosA * outerR - sinA);
+      gfx->drawLine(x1b, y1b, x2b, y2b, color);
+    }
   }
 }
 
-// Draw a play triangle
+// ====== ANALOG CLOCK - LUXURY WATCH STYLE ======
+void drawTaperedHand(int cx, int cy, float angleDeg, int length, int baseW, uint16_t color) {
+  float a = angleDeg * PI / 180.0f;
+  float sinA = sinf(a), cosA = cosf(a);
+
+  // Tip
+  float tipX = cx + sinA * length;
+  float tipY = cy - cosA * length;
+
+  // Base points (perpendicular to direction)
+  float blX = cx - cosA * (baseW / 2.0f);
+  float blY = cy - sinA * (baseW / 2.0f);
+  float brX = cx + cosA * (baseW / 2.0f);
+  float brY = cy + sinA * (baseW / 2.0f);
+
+  // Main hand triangle
+  gfx->fillTriangle((int)tipX, (int)tipY, (int)blX, (int)blY, (int)brX, (int)brY, color);
+
+  // Counterweight (short extension behind center)
+  float tailLen = length * 0.15f;
+  float tailX = cx - sinA * tailLen;
+  float tailY = cy + cosA * tailLen;
+  float tailW = baseW * 0.8f;
+  float tlX = cx - cosA * (tailW / 2.0f);
+  float tlY = cy - sinA * (tailW / 2.0f);
+  float trX = cx + cosA * (tailW / 2.0f);
+  float trY = cy + sinA * (tailW / 2.0f);
+  gfx->fillTriangle((int)tailX, (int)tailY, (int)tlX, (int)tlY, (int)trX, (int)trY, color);
+}
+
+void drawAnalogClock() {
+  int cx = CENTER_X;
+  int cy = CENTER_Y - 5;
+  int radius = 100;
+
+  // Outer bezel - double ring for depth
+  for (int r = radius + 2; r >= radius; r--) {
+    gfx->drawCircle(cx, cy, r, COLOR_WATCH_BEZEL);
+  }
+  gfx->drawCircle(cx, cy, radius - 1, COLOR_WATCH_BEZEL_IN);
+
+  // Inner subtle ring
+  gfx->drawCircle(cx, cy, radius - 14, COLOR_WATCH_BEZEL_IN);
+
+  // Minute ticks (60 marks)
+  for (int i = 0; i < 60; i++) {
+    float angle = i * 6.0f * PI / 180.0f;
+    float sinA = sinf(angle), cosA = cosf(angle);
+
+    if (i % 5 == 0) {
+      // Hour marker - thick and prominent
+      int inner = radius - 13;
+      int outer = radius - 3;
+      int x1 = cx + (int)(sinA * inner);
+      int y1 = cy - (int)(cosA * inner);
+      int x2 = cx + (int)(sinA * outer);
+      int y2 = cy - (int)(cosA * outer);
+      gfx->drawLine(x1, y1, x2, y2, COLOR_WATCH_MARKER);
+      // Thicken
+      gfx->drawLine(x1 + 1, y1, x2 + 1, y2, COLOR_WATCH_MARKER);
+      gfx->drawLine(x1, y1 + 1, x2, y2 + 1, COLOR_WATCH_MARKER);
+
+      // Extra prominent at 12, 3, 6, 9
+      if (i % 15 == 0) {
+        gfx->drawLine(x1 - 1, y1, x2 - 1, y2, COLOR_WATCH_MARKER);
+        gfx->drawLine(x1, y1 - 1, x2, y2 - 1, COLOR_WATCH_MARKER);
+        // Small lume dot at inner end
+        gfx->fillCircle(cx + (int)(sinA * (inner - 4)), cy - (int)(cosA * (inner - 4)), 2, 0x4208);
+      }
+    } else {
+      // Minute tick - thin
+      int inner = radius - 6;
+      int outer = radius - 3;
+      int x1 = cx + (int)(sinA * inner);
+      int y1 = cy - (int)(cosA * inner);
+      int x2 = cx + (int)(sinA * outer);
+      int y2 = cy - (int)(cosA * outer);
+      gfx->drawLine(x1, y1, x2, y2, COLOR_WATCH_TICK);
+    }
+  }
+
+  // Hour hand (short, wide) with outline
+  float hourAngle = ((hours % 12) + minutes / 60.0f) * 30.0f;
+  drawTaperedHand(cx, cy, hourAngle, 48, 11, 0x4208);  // Shadow
+  drawTaperedHand(cx, cy, hourAngle, 46, 9, COLOR_WATCH_HOUR);
+
+  // Minute hand (long, thinner) with outline
+  float minAngle = (minutes + seconds / 60.0f) * 6.0f;
+  drawTaperedHand(cx, cy, minAngle, 70, 7, 0x4208);  // Shadow
+  drawTaperedHand(cx, cy, minAngle, 68, 5, COLOR_WATCH_MIN);
+
+  // Second hand (thin line with red accent)
+  float secAngle = seconds * 6.0f;
+  float secRad = secAngle * PI / 180.0f;
+  float secSin = sinf(secRad), secCos = cosf(secRad);
+  int secLen = 78;
+  int secTailLen = 18;
+  int tipSX = cx + (int)(secSin * secLen);
+  int tipSY = cy - (int)(secCos * secLen);
+  int tailSX = cx - (int)(secSin * secTailLen);
+  int tailSY = cy + (int)(secCos * secTailLen);
+  gfx->drawLine(tailSX, tailSY, tipSX, tipSY, COLOR_WATCH_SEC);
+  gfx->drawLine(tailSX + 1, tailSY, tipSX + 1, tipSY, COLOR_WATCH_SEC);
+  // Counterweight circle
+  gfx->fillCircle(tailSX, tailSY, 4, COLOR_WATCH_SEC);
+
+  // Center hub - layered for depth
+  gfx->fillCircle(cx, cy, 6, 0x4208);
+  gfx->fillCircle(cx, cy, 4, COLOR_WATCH_MARKER);
+  gfx->fillCircle(cx, cy, 2, COLOR_WATCH_SEC);
+}
+
+// ====== SMOOTH NAVIGATION ARROW ======
+void drawNavArrow(int cx, int cy, float angleDeg, int size, uint16_t color) {
+  float a = angleDeg * PI / 180.0f;
+  float sinA = sinf(a), cosA = cosf(a);
+  float perpX = cosA, perpY = sinA;
+
+  // Arrow proportions
+  float headLen = size * 0.45f;
+  float shaftHalf = size * 0.50f;
+  float headW = size * 0.50f;
+  float shaftW = size * 0.15f;
+
+  // Tip
+  float tipX = cx + sinA * size;
+  float tipY = cy - cosA * size;
+
+  // Arrowhead base (where head meets shaft)
+  float hbX = cx + sinA * (size - headLen);
+  float hbY = cy - cosA * (size - headLen);
+
+  // Head wing points
+  float lwX = hbX - perpX * headW;
+  float lwY = hbY - perpY * headW;
+  float rwX = hbX + perpX * headW;
+  float rwY = hbY + perpY * headW;
+
+  // Shaft corners
+  float s1X = hbX - perpX * shaftW;
+  float s1Y = hbY - perpY * shaftW;
+  float s2X = hbX + perpX * shaftW;
+  float s2Y = hbY + perpY * shaftW;
+  float s3X = cx - sinA * shaftHalf - perpX * shaftW;
+  float s3Y = cy + cosA * shaftHalf - perpY * shaftW;
+  float s4X = cx - sinA * shaftHalf + perpX * shaftW;
+  float s4Y = cy + cosA * shaftHalf + perpY * shaftW;
+
+  // Draw arrowhead (filled triangle)
+  gfx->fillTriangle((int)tipX, (int)tipY, (int)lwX, (int)lwY, (int)rwX, (int)rwY, color);
+
+  // Draw shaft (two triangles forming rectangle)
+  gfx->fillTriangle((int)s1X, (int)s1Y, (int)s2X, (int)s2Y, (int)s3X, (int)s3Y, color);
+  gfx->fillTriangle((int)s2X, (int)s2Y, (int)s3X, (int)s3Y, (int)s4X, (int)s4Y, color);
+
+  // Subtle edge highlight on arrowhead for depth
+  gfx->drawLine((int)tipX, (int)tipY, (int)lwX, (int)lwY, COLOR_NAV_ARROW_EDGE);
+  gfx->drawLine((int)tipX, (int)tipY, (int)rwX, (int)rwY, COLOR_NAV_ARROW_EDGE);
+}
+
+// ====== TRANSPORT ICONS ======
 void drawPlayIcon(int cx, int cy, int size, uint16_t color) {
   gfx->fillTriangle(
-    cx - size/2, cy - size,
-    cx - size/2, cy + size,
+    cx - size / 2, cy - size,
+    cx - size / 2, cy + size,
     cx + size, cy,
     color
   );
 }
 
-// Draw pause bars
 void drawPauseIcon(int cx, int cy, int size, uint16_t color) {
-  int barW = size / 2;
+  int barW = max(size / 2, 3);
   int gap = size / 3;
-  gfx->fillRect(cx - gap - barW, cy - size, barW, size * 2, color);
-  gfx->fillRect(cx + gap, cy - size, barW, size * 2, color);
+  gfx->fillRoundRect(cx - gap - barW, cy - size, barW, size * 2, 2, color);
+  gfx->fillRoundRect(cx + gap, cy - size, barW, size * 2, 2, color);
 }
 
-// Draw next track icon (triangle + line)
 void drawNextIcon(int cx, int cy, int size, uint16_t color) {
   gfx->fillTriangle(
     cx - size, cy - size,
     cx - size, cy + size,
-    cx + size/2, cy,
+    cx + size / 2, cy,
     color
   );
-  gfx->fillRect(cx + size/2, cy - size, 3, size * 2, color);
+  gfx->fillRect(cx + size / 2, cy - size, 3, size * 2, color);
 }
 
-// Draw prev track icon (line + triangle)
 void drawPrevIcon(int cx, int cy, int size, uint16_t color) {
-  gfx->fillRect(cx - size/2 - 3, cy - size, 3, size * 2, color);
+  gfx->fillRect(cx - size / 2 - 3, cy - size, 3, size * 2, color);
   gfx->fillTriangle(
     cx + size, cy - size,
     cx + size, cy + size,
-    cx - size/2, cy,
+    cx - size / 2, cy,
     color
   );
 }
 
-// Draw navigation arrow pointing in a direction
-// angleDeg: 0 = straight ahead (up), 90 = right, -90 = left, 180 = u-turn
-void drawNavArrow(int cx, int cy, float angleDeg, int arrowLen, uint16_t color) {
-  float angleRad = angleDeg * PI / 180.0;
-
-  // Arrow shaft endpoints (pointing up by default, rotated by angle)
-  // "Up" on screen is negative Y
-  float tipX = cx + sin(angleRad) * arrowLen;
-  float tipY = cy - cos(angleRad) * arrowLen;
-  float baseX = cx - sin(angleRad) * (arrowLen * 0.3);
-  float baseY = cy + cos(angleRad) * (arrowLen * 0.3);
-
-  // Arrowhead wings
-  float wingAngle1 = angleRad + 2.5; // ~143 degrees offset
-  float wingAngle2 = angleRad - 2.5;
-  float wingLen = arrowLen * 0.4;
-  float wing1X = tipX + sin(wingAngle1) * wingLen;
-  float wing1Y = tipY - cos(wingAngle1) * wingLen;
-  float wing2X = tipX + sin(wingAngle2) * wingLen;
-  float wing2Y = tipY - cos(wingAngle2) * wingLen;
-
-  // Draw thick arrow shaft
-  for (int i = -2; i <= 2; i++) {
-    gfx->drawLine(baseX + i, baseY, tipX + i, tipY, color);
-    gfx->drawLine(baseX, baseY + i, tipX, tipY + i, color);
-  }
-
-  // Draw arrowhead
-  gfx->fillTriangle(tipX, tipY, wing1X, wing1Y, wing2X, wing2Y, color);
-}
-
-// Draw small dots at bottom indicating current slide
+// ====== SLIDE INDICATORS ======
 void drawSlideIndicators() {
   int dotSpacing = 16;
   int startX = CENTER_X - (SLIDE_COUNT - 1) * dotSpacing / 2;
-  int y = SCREEN_H - 20;
+  int y = SCREEN_H - 18;
 
   for (int i = 0; i < SLIDE_COUNT; i++) {
     int x = startX + i * dotSpacing;
     if (i == (int)currentSlide) {
-      gfx->fillCircle(x, y, 4, COLOR_INDICATOR_ACTIVE);
+      gfx->fillCircle(x, y, 4, COLOR_INDICATOR_ACT);
     } else {
       gfx->fillCircle(x, y, 3, COLOR_INDICATOR);
     }
@@ -664,80 +1522,51 @@ void drawSlideIndicators() {
 }
 
 // ====== SLIDE DRAWING ======
-void drawAnalogClock() {
-  int cx = CENTER_X;
-  int cy = CENTER_Y - 5;
-  int radius = 95;
-
-  // Clock face outline
-  gfx->drawCircle(cx, cy, radius, 0x4208);
-  gfx->drawCircle(cx, cy, radius - 1, 0x4208);
-
-  // Hour markers
-  for (int i = 0; i < 12; i++) {
-    float angle = i * 30.0 * PI / 180.0;
-    int innerR = (i % 3 == 0) ? radius - 15 : radius - 10;
-    int outerR = radius - 3;
-    int x1 = cx + sin(angle) * innerR;
-    int y1 = cy - cos(angle) * innerR;
-    int x2 = cx + sin(angle) * outerR;
-    int y2 = cy - cos(angle) * outerR;
-    uint16_t markerColor = (i % 3 == 0) ? WHITE : 0x7BEF;
-    gfx->drawLine(x1, y1, x2, y2, markerColor);
-    if (i % 3 == 0) {
-      gfx->drawLine(x1 + 1, y1, x2 + 1, y2, markerColor);
-    }
-  }
-
-  // Hour hand
-  float hourAngle = ((hours % 12) + minutes / 60.0) * 30.0 * PI / 180.0;
-  int hLen = 50;
-  for (int d = -2; d <= 2; d++) {
-    gfx->drawLine(cx + d, cy, cx + sin(hourAngle) * hLen + d, cy - cos(hourAngle) * hLen, COLOR_TIME);
-    gfx->drawLine(cx, cy + d, cx + sin(hourAngle) * hLen, cy - cos(hourAngle) * hLen + d, COLOR_TIME);
-  }
-
-  // Minute hand
-  float minAngle = (minutes + seconds / 60.0) * 6.0 * PI / 180.0;
-  int mLen = 72;
-  for (int d = -1; d <= 1; d++) {
-    gfx->drawLine(cx + d, cy, cx + sin(minAngle) * mLen + d, cy - cos(minAngle) * mLen, WHITE);
-    gfx->drawLine(cx, cy + d, cx + sin(minAngle) * mLen, cy - cos(minAngle) * mLen + d, WHITE);
-  }
-
-  // Second hand (thin, colored)
-  float secAngle = seconds * 6.0 * PI / 180.0;
-  int sLen = 80;
-  gfx->drawLine(cx, cy, cx + sin(secAngle) * sLen, cy - cos(secAngle) * sLen, COLOR_TIME_SEC);
-
-  // Center dot
-  gfx->fillCircle(cx, cy, 4, COLOR_TIME);
-}
-
 void drawTimeSlide() {
   gfx->fillScreen(COLOR_BG);
 
   if (!timeInitialized) {
-    drawCenteredText("Waiting for", CENTER_Y - 20, 2, WHITE);
-    drawCenteredText("time sync...", CENTER_Y + 10, 2, WHITE);
+    drawTextFont("Waiting for", CENTER_Y - 15, false, WHITE);
+    drawTextFont("time sync...", CENTER_Y + 15, false, WHITE);
   } else if (analogClock) {
     drawAnalogClock();
   } else {
-    // Digital clock
-    char timeStr[6];
-    sprintf(timeStr, "%02d:%02d", hours, minutes);
-    drawCenteredText(timeStr, CENTER_Y - 30, 5, COLOR_TIME);
+    // Digital clock with custom 7-segment digits
+    int digitW = 36;
+    int digitH = 60;
+    int segT = 7;
+    int gap = 5;
+    int colonW = 12;
+    int totalW = 4 * digitW + 3 * gap + colonW;
+    int startX = (SCREEN_W - totalW) / 2;
+    int startY = CENTER_Y - digitH / 2 - 2;
 
-    char secStr[4];
-    sprintf(secStr, ":%02d", seconds);
-    drawCenteredText(secStr, CENTER_Y + 30, 3, COLOR_TIME_SEC);
+    int xPos = startX;
+    // Hour tens
+    drawDigit(xPos, startY, hours / 10, digitW, digitH, segT, COLOR_DIGIT, COLOR_DIGIT_DIM);
+    xPos += digitW + gap;
+    // Hour ones
+    drawDigit(xPos, startY, hours % 10, digitW, digitH, segT, COLOR_DIGIT, COLOR_DIGIT_DIM);
+    xPos += digitW + gap;
+    // Colon (blink with seconds)
+    uint16_t colonColor = (seconds % 2 == 0) ? COLOR_DIGIT : COLOR_DIGIT_DIM;
+    drawColon(xPos + colonW / 2, startY + digitH / 2, digitH, 4, colonColor);
+    xPos += colonW + gap;
+    // Minute tens
+    drawDigit(xPos, startY, minutes / 10, digitW, digitH, segT, COLOR_DIGIT, COLOR_DIGIT_DIM);
+    xPos += digitW + gap;
+    // Minute ones
+    drawDigit(xPos, startY, minutes % 10, digitW, digitH, segT, COLOR_DIGIT, COLOR_DIGIT_DIM);
+
+    // Seconds ring around the edge
+    drawSecondsRing(CENTER_X, CENTER_Y, 112, seconds);
   }
 
   // Connection indicator
   if (deviceConnected) {
-    gfx->fillCircle(CENTER_X, 25, 5, COLOR_TIME);
+    gfx->fillCircle(CENTER_X, 22, 5, COLOR_DIGIT);
   } else {
-    gfx->drawCircle(CENTER_X, 25, 5, 0x4208);
+    gfx->drawCircle(CENTER_X, 22, 5, COLOR_INDICATOR);
   }
 
   drawSlideIndicators();
@@ -747,50 +1576,61 @@ void drawMusicSlide() {
   gfx->fillScreen(COLOR_MUSIC_BG);
 
   if (!musicDataReceived) {
-    drawCenteredText("No music", CENTER_Y - 20, 2, 0x4208);
-    drawCenteredText("playing", CENTER_Y + 5, 2, 0x4208);
+    drawTextFont("No music", CENTER_Y - 12, true, 0x4208);
+    drawTextFont("playing", CENTER_Y + 12, false, 0x4208);
   } else {
-    // Music icon / state at top
+    // State icon at top
+    int iconY = 38;
     if (musicState == "PLAYING") {
-      // Draw equalizer-style bars
-      for (int i = 0; i < 3; i++) {
-        int barH = 8 + (i % 2) * 8;
-        gfx->fillRect(CENTER_X - 15 + i * 12, 35 - barH, 8, barH, COLOR_MUSIC_ICON);
+      // Equalizer bars
+      int barW = 6;
+      int barGap = 4;
+      int numBars = 4;
+      int totalBarW = numBars * barW + (numBars - 1) * barGap;
+      int bx = CENTER_X - totalBarW / 2;
+      int heights[] = {14, 22, 18, 10};
+      for (int i = 0; i < numBars; i++) {
+        gfx->fillRoundRect(bx + i * (barW + barGap), iconY - heights[i], barW, heights[i], 2, COLOR_MUSIC_ICON);
       }
     } else if (musicState == "PAUSED") {
-      drawPauseIcon(CENTER_X, 28, 8, 0x7BEF); // Gray
+      drawPauseIcon(CENTER_X, iconY - 8, 8, 0x7BEF);
     } else {
-      gfx->fillRect(CENTER_X - 8, 20, 16, 16, 0x4208); // Stop square
+      gfx->fillRoundRect(CENTER_X - 8, iconY - 16, 16, 16, 3, 0x4208);
     }
 
-    // Title (larger, white)
+    // Title
     if (musicTitle.length() > 0) {
-      drawWrappedText(musicTitle.c_str(), CENTER_Y - 35, 200, 2, COLOR_MUSIC_TITLE);
+      drawWrappedTextFont(musicTitle.c_str(), CENTER_Y - 30, 190, true, COLOR_MUSIC_TITLE);
     }
 
-    // Artist (smaller, cyan)
+    // Artist
     if (musicArtist.length() > 0) {
-      drawWrappedText(musicArtist.c_str(), CENTER_Y + 20, 200, 2, COLOR_MUSIC_ARTIST);
+      drawWrappedTextFont(musicArtist.c_str(), CENTER_Y + 20, 190, false, COLOR_MUSIC_ARTIST);
     }
 
-    // Transport controls at bottom - large touch targets for glove use
-    int controlY = SCREEN_H - 55;
+    // Transport controls
+    int ctrlY = SCREEN_H - 50;
 
-    // Draw large touch zone circles for glove visibility
-    gfx->drawCircle(CENTER_X - 55, controlY, 30, 0x2104);
-    gfx->drawCircle(CENTER_X, controlY, 32, 0x2104);
-    gfx->drawCircle(CENTER_X + 55, controlY, 30, 0x2104);
+    // Button backgrounds (large circular touch targets)
+    gfx->fillCircle(CENTER_X - 52, ctrlY, 24, COLOR_MUSIC_CTRL_BG);
+    gfx->fillCircle(CENTER_X, ctrlY, 26, COLOR_MUSIC_CTRL_BG);
+    gfx->fillCircle(CENTER_X + 52, ctrlY, 24, COLOR_MUSIC_CTRL_BG);
 
-    // Draw larger control icons
-    drawPrevIcon(CENTER_X - 55, controlY, 12, 0x7BEF);
+    // Button borders
+    gfx->drawCircle(CENTER_X - 52, ctrlY, 24, 0x2945);
+    gfx->drawCircle(CENTER_X, ctrlY, 26, 0x2945);
+    gfx->drawCircle(CENTER_X + 52, ctrlY, 24, 0x2945);
+
+    // Icons
+    drawPrevIcon(CENTER_X - 52, ctrlY, 10, 0xBDF7);
 
     if (musicState == "PLAYING") {
-      drawPauseIcon(CENTER_X, controlY, 14, COLOR_MUSIC_ICON);
+      drawPauseIcon(CENTER_X, ctrlY, 12, COLOR_MUSIC_ICON);
     } else {
-      drawPlayIcon(CENTER_X, controlY, 14, COLOR_MUSIC_ICON);
+      drawPlayIcon(CENTER_X, ctrlY, 12, COLOR_MUSIC_ICON);
     }
 
-    drawNextIcon(CENTER_X + 55, controlY, 12, 0x7BEF);
+    drawNextIcon(CENTER_X + 52, ctrlY, 10, 0xBDF7);
   }
 
   drawSlideIndicators();
@@ -800,20 +1640,20 @@ void drawNavSlide() {
   gfx->fillScreen(COLOR_NAV_BG);
 
   if (!navDataReceived) {
-    drawCenteredText("No navigation", CENTER_Y - 20, 2, 0x4208);
-    drawCenteredText("active", CENTER_Y + 5, 2, 0x4208);
+    drawTextFont("No navigation", CENTER_Y - 12, true, 0x4208);
+    drawTextFont("active", CENTER_Y + 12, false, 0x4208);
   } else {
-    // Direction arrow (large, centered)
-    drawNavArrow(CENTER_X, CENTER_Y - 15, navDirection, 55, COLOR_NAV_ARROW);
-
     // Distance at top
     char distStr[32];
     snprintf(distStr, sizeof(distStr), "%s %s", navDistance.c_str(), navUnit.c_str());
-    drawCenteredText(distStr, 30, 3, COLOR_NAV_DIST);
+    drawTextFont(distStr, 35, true, COLOR_NAV_DIST);
+
+    // Direction arrow (large, centered, smooth filled)
+    drawNavArrow(CENTER_X, CENTER_Y + 5, navDirection, 55, COLOR_NAV_ARROW);
 
     // Instruction at bottom
     if (navInstruction.length() > 0) {
-      drawWrappedText(navInstruction.c_str(), SCREEN_H - 70, 200, 2, COLOR_NAV_INST);
+      drawWrappedTextFont(navInstruction.c_str(), SCREEN_H - 55, 190, false, COLOR_NAV_INST);
     }
   }
 
@@ -827,6 +1667,7 @@ void drawSlide() {
     case SLIDE_NAV:   drawNavSlide();   break;
     default: break;
   }
+  gfx->flush();
   slideNeedsRedraw = false;
 }
 
@@ -834,7 +1675,7 @@ void drawSlide() {
 void setup() {
   Serial.begin(115200);
 
-  // Backlight (Arduino ESP32 core 3.x API)
+  // Backlight
   ledcAttach(TFT_BL, 5000, 8);
   ledcWrite(TFT_BL, 255);
 
@@ -848,6 +1689,7 @@ void setup() {
   drawCenteredText("MC Display", CENTER_Y - 30, 2, WHITE);
   drawCenteredText("BLE Ready...", CENTER_Y, 2, 0x07E0);
   drawCenteredText("Waiting for phone", CENTER_Y + 25, 1, 0x4208);
+  gfx->flush();
 
   // Initialize touch
   touchInit();
@@ -882,7 +1724,6 @@ void setup() {
 
   Serial.println("BLE service started. Connect from phone.");
 
-  // Show time slide initially
   delay(2000);
   slideNeedsRedraw = true;
 }
@@ -897,7 +1738,6 @@ void loop() {
 
     if (timeInitialized) {
       incrementTime();
-      // Only redraw if we're on the time slide
       if (currentSlide == SLIDE_TIME) {
         slideNeedsRedraw = true;
       }
@@ -921,5 +1761,5 @@ void loop() {
     drawSlide();
   }
 
-  delay(10); // Small delay to prevent watchdog issues
+  delay(10);
 }
